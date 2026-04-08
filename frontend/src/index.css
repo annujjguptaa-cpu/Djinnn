@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0a0a0f;
+  color: #e2e8f0;
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #12121a;
+}
+::-webkit-scrollbar-thumb {
+  background: #6d28d9;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8b5cf6;
+}
+
+/* Glow button */
+.btn-glow {
+  background: linear-gradient(135deg, #6d28d9, #8b5cf6);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2);
+  transition: all 0.3s ease;
+}
+.btn-glow:hover {
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.8), 0 0 60px rgba(139, 92, 246, 0.4);
+  transform: translateY(-2px) scale(1.02);
+}
+.btn-glow:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Card glow border */
+.card-glow {
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(139,92,246,0.1);
+  transition: all 0.3s ease;
+}
+.card-glow:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 30px rgba(139,92,246,0.2), inset 0 1px 0 rgba(139,92,246,0.2);
+}
+
+/* Input style */
+.input-djinn {
+  background: #12121a;
+  border: 1px solid #2d2d44;
+  color: #e2e8f0;
+  transition: all 0.3s ease;
+}
+.input-djinn:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
+}
+.input-djinn::placeholder {
+  color: #4a4a6a;
+}
+
+/* Page background pattern */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(139,92,246,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139,92,246,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Smoke particles */
+.smoke-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139,92,246,0.6), transparent);
+  pointer-events: none;
+  animation: smoke 4s ease-out forwards;
+}
+
+/* Confetti */
+.confetti-piece {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  pointer-events: none;
+  animation: confettiFall linear forwards;
+}
+
+@keyframes confettiFall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* Shimmer loading */
+.shimmer {
+  background: linear-gradient(90deg, #1a1a2e 25%, #2d2d44 50%, #1a1a2e 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Genie lamp glow orbit */
+.orbit-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(139,92,246,0.3);
+  animation: orbit 6s linear infinite;
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Purple gradient text */
+.text-gradient {
+  background: linear-gradient(135deg, #a78bfa, #8b5cf6, #6d28d9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* LinkedIn card shadow */
+.linkedin-card {
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px rgba(0,0,0,0.6);
+}
+
+/* Drag zone */
+.drag-zone {
+  border: 2px dashed #2d2d44;
+  transition: all 0.3s ease;
+}
+.drag-zone:hover,
+.drag-zone.dragging {
+  border-color: #8b5cf6;
+  background: rgba(139,92,246,0.05);
+}

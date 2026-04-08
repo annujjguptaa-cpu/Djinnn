@@ -1,33 +1,55 @@
-# Environment variables - NEVER commit these
-backend/.env
+# Environment variables
 .env
+.env.local
+.env.*.local
+
+# Node dependencies
+frontend/node_modules/
+package-lock.json
+yarn.lock
 
 # Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-*.pyc
-backend/venv/
+backend/__pycache__/
+backend/*.pyc
 backend/.venv/
+backend/venv/
 *.egg-info/
 dist/
 build/
 
-# Node / Frontend
-frontend/node_modules/
-node_modules/
-frontend/dist/
-frontend/.vite/
-
-# Logs
-backend/backend.log
-*.log
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-*
 
 # OS
 .DS_Store
 Thumbs.db
+.gitkeep
 
-# Misc
-tmp_fetch.py)
-package-lock.json
+# Uploads & Media
+backend/uploads/*
+!backend/uploads/.gitkeep
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+
+# Data & Cache
+*.db
+*.sqlite
+*.sqlite3
+*.json
+.cache/
+
+# Logs
+*.log
+logs/
+
+# Temporary
+tmp_*.py
+*.tmp
+.temp/

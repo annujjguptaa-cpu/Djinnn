@@ -42,7 +42,13 @@ backend/uploads/*
 *.db
 *.sqlite
 *.sqlite3
-*.json
+# Allow critical manifests
+!package.json
+!composer.json
+!manifest.json
+# Block generic data JSONs
+data/*.json
+storage/*.json
 .cache/
 
 # Logs

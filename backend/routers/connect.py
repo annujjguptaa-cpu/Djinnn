@@ -1,11 +1,12 @@
 import uuid
 from fastapi import APIRouter, HTTPException
 from models import ConnectCreate, WishResponse
+from db import get_connect_wishes, sync_db
 
 router = APIRouter(prefix="/connect", tags=["connect"])
 
-# In-memory store (replace with DB in production)
-connect_wishes: dict = {}
+# Use Persistent DB
+connect_wishes = get_connect_wishes()
 
 
 @router.post("/create", response_model=WishResponse)
@@ -21,6 +22,7 @@ async def create_connect_wish(payload: ConnectCreate):
         "location": payload.location,
         "message": payload.message,
     }
+    sync_db() # Persist!
     return WishResponse(
         wish_id=wish_id,
         type="connect",
@@ -35,3 +37,21 @@ async def get_connect_wish(wish_id: str):
     if not wish:
         raise HTTPException(status_code=404, detail="Wish not found")
     return wish
+
+
+@router.post("/execute/{wish_id}")
+async def execute_connect_wish(wish_id: str, access_token: str = None):
+    """Execute the Djinn Magic for a connection wish."""
+    wish = connect_wishes.get(wish_id)
+    if not wish:
+        raise HTTPException(status_code=404, detail="Connection wish not found")
+
+    # For now, we simulate the 'Magic' and return the payload for the frontend
+    # to open the LinkedIn search with pre-filled filters.
+    return {
+        "status": "success",
+        "type": "connect",
+        "role": wish["role"],
+        "location": wish["location"],
+        "message": wish["message"]
+    }

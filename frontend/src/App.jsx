@@ -4,6 +4,10 @@ import Home from './pages/Home'
 import AutoPost from './pages/AutoPost'
 import AutoConnect from './pages/AutoConnect'
 import WishPage from './pages/WishPage'
+import GitHubHub from './pages/GitHubHub'
+import WorkflowBuilder from './pages/WorkflowBuilder'
+import RepositoryPush from './pages/RepositoryPush'
+import WhiteLabelPortal from './pages/WhiteLabelPortal'
 import Navbar from './components/Navbar'
 
 import { useState } from 'react'
@@ -12,7 +16,9 @@ import SplashScreen from './components/SplashScreen'
 function App() {
   const location = useLocation()
   const isWishPage = location.pathname.startsWith('/wish/')
-  const [showSplash, setShowSplash] = useState(true)
+  
+  // Restore splash screen
+  const [showSplash, setShowSplash] = useState(!isWishPage)
 
   return (
     <>
@@ -27,6 +33,10 @@ function App() {
                 <Route path="/auto-post" element={<AutoPost />} />
                 <Route path="/auto-connect" element={<AutoConnect />} />
                 <Route path="/wish/:wishId" element={<WishPage />} />
+                <Route path="/github-dashboard" element={<GitHubHub />} />
+                <Route path="/workflow-builder" element={<WorkflowBuilder />} />
+                <Route path="/github/push/:workflowId" element={<RepositoryPush />} />
+                <Route path="/share/:linkId" element={<WhiteLabelPortal />} />
               </Routes>
             </div>
           )}

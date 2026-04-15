@@ -21,6 +21,7 @@ export default function Navbar() {
     { to: '/', label: 'Home' },
     { to: '/auto-post', label: 'Auto Post' },
     { to: '/auto-connect', label: 'Auto Connect' },
+    { to: '/github-dashboard', label: 'GitHub B2B' },
   ]
 
   return (

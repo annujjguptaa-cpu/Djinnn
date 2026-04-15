@@ -13,14 +13,24 @@ from fastapi import APIRouter, UploadFile, File, HTTPException, Form, Body
 from fastapi.responses import StreamingResponse
 from models import PostCreate, WishResponse, CaptionResponse, StreamRequest
 from settings import settings
+from db import get_post_wishes, sync_db
 
 router = APIRouter(prefix="/post", tags=["post"])
 
-# In-memory store (replace with DB in production)
-post_wishes: dict = {}
+# Use Persistent DB
+post_wishes = get_post_wishes()
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+DEBUG_LOG = os.path.join(os.getcwd(), "linkedin_debug.log")
+
+def log_linkedin_debug(action: str, status: int, headers: dict, body: str):
+    """Helper to log deep LinkedIn diagnostics to a file."""
+    with open(DEBUG_LOG, "a") as f:
+        f.write(f"\n--- {action} [{status}] ---\n")
+        f.write(f"Headers: {json.dumps(dict(headers), indent=2)}\n")
+        f.write(f"Body: {body}\n")
+        f.write("-" * 30 + "\n")
 
 # Initialize Async OpenAI client
 client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY) if settings.OPENAI_API_KEY else None
@@ -170,6 +180,7 @@ async def create_post_wish(payload: PostCreate):
         "image_paths": payload.image_paths,
         "platform": payload.platform,
     }
+    sync_db() # Persist!
     return WishResponse(
         wish_id=wish_id,
         type="post",
@@ -341,15 +352,38 @@ async def execute_linkedin_post(client: httpx.AsyncClient, wish: dict, access_to
             }
         )
 
+    # 3. Success handling
+    log_linkedin_debug(
+        "PUBLISH_FINAL", 
+        publish_res.status_code, 
+        publish_res.headers, 
+        publish_res.text
+    )
+
     if publish_res.status_code not in [200, 201]:
         print("------- BLACK BOX: LINKEDIN PUBLISH FAILED -------")
-        print(f"Status: {publish_res.status_code}")
-        print(f"Body: {publish_res.text}")
         raise HTTPException(status_code=publish_res.status_code, detail=f"LinkedIn Publish Failed: {publish_res.text}")
 
-    # Success handling - Posts API uses 'id', UGC uses 'X-RestLi-Id'
-    post_urn = publish_res.json().get("id") or publish_res.headers.get("X-RestLi-Id")
-    post_url = f"https://www.linkedin.com/feed/update/{post_urn}/" if post_urn else None
+    # Resolve ID from header or body
+    post_urn = publish_res.headers.get("x-restli-id") or publish_res.headers.get("X-RestLi-Id")
+    if not post_urn:
+        try:
+            res_data = publish_res.json()
+            post_urn = res_data.get("id")
+        except:
+            pass
+
+    if post_urn:
+        post_urn = post_urn.strip().replace('"', '').replace("'", "")
+        # CRITICAL: Ensure full URN format for the URL
+        if not post_urn.startswith("urn:li:"):
+            # If we don't know the exact type, 'share' is the most common for the Posts API
+            post_urn = f"urn:li:share:{post_urn}"
+
+    print(f"Final Resolved LinkedIn URN: {post_urn}")
+    
+    # Modern direct post URL
+    post_url = f"https://www.linkedin.com/posts/{post_urn}" if post_urn else None
 
     return {
         "status": "success", 

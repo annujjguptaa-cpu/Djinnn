@@ -153,7 +153,8 @@ function DjinnWorking({ step, platform }) {
           <path d="M18 52 Q22 38 40 36 Q58 38 62 52 Z" fill="url(#lampGradW)"/>
           <path d="M62 48 Q72 44 74 50 Q72 56 62 54 Z" fill="url(#lampGrad2W)" opacity="0.8"/>
           <path d="M22 46 Q12 40 14 32 Q16 26 22 28" stroke="url(#lampGrad2W)" strokeWidth="3" fill="none" strokeLinecap="round"/>
-          <motion.ellipse cx="76" cy="46" rx="6" ry="8" fill="url(#smokeGradW)"
+          <motion.ellipse fill="url(#smokeGradW)"
+            initial={{ cx: 76, cy: 46, rx: 6, ry: 8, opacity: 0.8 }}
             animate={{ scaleY: [1, 1.6, 1], opacity: [0.8, 0.3, 0.8], cy: [46, 40, 46] }}
             transition={{ duration: 1, repeat: Infinity }}
           />
@@ -213,9 +214,15 @@ function DjinnWorking({ step, platform }) {
 }
 
 // ─── Success Screen ───────────────────────────────────────────────────────────
-function WishGranted({ postUrl, platform }) {
+function WishGranted({ postUrl, platform, wishData }) {
   const isX = platform === 'x'
+  const isConnect = wishData?.type === 'connect'
   
+  // Generate LinkedIn Search URL for Connect wishes
+  const searchUrl = isConnect 
+    ? `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(wishData.role)}&location=${encodeURIComponent(wishData.location)}`
+    : postUrl
+
   return (
     <>
       <Confetti />
@@ -245,7 +252,7 @@ function WishGranted({ postUrl, platform }) {
           transition={{ delay: 0.4 }}
           className="text-5xl font-black mb-4"
         >
-          <span className="text-gradient">Your wish is granted</span>
+          <span className="text-gradient">{isConnect ? 'Connection Magic Activated' : 'Your wish is granted'}</span>
           <span className="ml-2">✨</span>
         </motion.h1>
 
@@ -255,11 +262,28 @@ function WishGranted({ postUrl, platform }) {
           transition={{ delay: 0.5 }}
           className="text-djinn-subtext text-lg max-w-md mb-10 leading-relaxed"
         >
-          Djinn has successfully published your post to {isX ? 'X (Twitter)' : 'LinkedIn'}. Your network can now see the magic you've created.
+          {isConnect 
+            ? `Djinn has prepared your personalized message for ${wishData.role}s in ${wishData.location}. One click to find them and start connecting!`
+            : `Djinn has successfully published your post to ${isX ? 'X (Twitter)' : 'LinkedIn'}. Your network can now see the magic you've created.`
+          }
         </motion.p>
 
         <div className="grid grid-cols-3 gap-4 mb-10">
-          {[['🚀', 'Status', 'Published'], ['⚡', 'API', 'LinkedIn v2'], ['🎯', 'Impact', 'Live Now']].map(([emoji, label, value]) => (
+          {isConnect ? [
+            ['🤝', 'Action', 'Connect'],
+            ['🌍', 'Market', wishData.location || 'Global'],
+            ['🎯', 'Goal', 'Growth']
+          ].map(([emoji, label, value]) => (
+            <div key={label} className="card-glow rounded-2xl p-5 text-center" style={{ background: 'rgba(26,26,46,0.8)' }}>
+              <div className="text-3xl mb-2">{emoji}</div>
+              <div className="text-djinn-subtext text-xs">{label}</div>
+              <div className="text-djinn-purple-light font-bold text-sm mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">{value}</div>
+            </div>
+          )) : [
+            ['🚀', 'Status', 'Published'],
+            ['⚡', 'API', isX ? 'X v2' : 'LinkedIn v2'],
+            ['🎯', 'Impact', 'Live Now']
+          ].map(([emoji, label, value]) => (
             <div key={label} className="card-glow rounded-2xl p-5 text-center" style={{ background: 'rgba(26,26,46,0.8)' }}>
               <div className="text-3xl mb-2">{emoji}</div>
               <div className="text-djinn-subtext text-xs">{label}</div>
@@ -270,7 +294,7 @@ function WishGranted({ postUrl, platform }) {
 
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <motion.a
-            href={postUrl || "#"}
+            href={searchUrl || "#"}
             target="_blank"
             rel="noopener noreferrer"
             initial={{ opacity: 0, y: 20 }}
@@ -278,12 +302,23 @@ function WishGranted({ postUrl, platform }) {
             transition={{ delay: 0.6 }}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className="btn-glow px-10 py-4 rounded-2xl text-white font-bold text-base inline-flex items-center gap-2"
+            className={`btn-glow px-10 py-4 rounded-2xl text-white font-bold text-base inline-flex items-center gap-2 ${isConnect ? 'bg-gradient-to-r from-blue-600 to-blue-400' : ''}`}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-            </svg>
-            View on LinkedIn
+            {isConnect ? (
+               <>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+                </svg>
+                Find Peers on LinkedIn
+               </>
+            ) : (
+              <>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
+                View on LinkedIn
+              </>
+            )}
           </motion.a>
 
           <motion.a
@@ -322,7 +357,8 @@ export default function WishPage() {
   useEffect(() => {
     const fetchWish = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/post/${wishId}`)
+        const path = wishId.startsWith('connect_') ? 'connect' : 'post'
+        const res = await axios.get(`${API_BASE}/${path}/${wishId}`)
         setWishData(res.data)
       } catch (err) {
         setStage('error')
@@ -377,12 +413,19 @@ export default function WishPage() {
         
         setCurrentStep(3)
         // Actual execution call - LONG timeout
-        const response = await axios.post(`${API_BASE}/post/execute/${wishId}?access_token=${token}`, {}, {
+        const isConnect = wishId.startsWith('connect_')
+        const execPath = isConnect ? 'connect' : 'post'
+        
+        const response = await axios.post(`${API_BASE}/${execPath}/execute/${wishId}?access_token=${token}`, {}, {
             timeout: 60000 // 60 seconds
         })
         
         if (response.data.status === 'success') {
-            setPostUrl(response.data.post_url)
+            if (isConnect) {
+              setWishData(prev => ({ ...prev, ...response.data }))
+            } else {
+              setPostUrl(response.data.post_url)
+            }
             await new Promise(r => setTimeout(r, 1000))
             setStage('granted')
         } else {
@@ -400,7 +443,14 @@ export default function WishPage() {
     <div className="min-h-screen bg-djinn-bg bg-grid font-inter relative">
       <div className="pointer-events-none fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-djinn-purple opacity-5 blur-[150px] rounded-full" />
 
-      <AnimatePresence mode="wait">
+      {isFetching ? (
+        <div className="flex flex-col items-center justify-center min-h-screen text-center px-6">
+          <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="text-6xl mb-6">🪔</motion.div>
+          <h2 className="text-2xl font-bold text-djinn-text mb-2">Summoning your wish...</h2>
+          <p className="text-djinn-subtext text-sm">Translating ancient scripts from the database.</p>
+        </div>
+      ) : (
+        <AnimatePresence mode="wait">
         {stage === 'auth' && (
           <motion.div
             key="auth"
@@ -435,9 +485,9 @@ export default function WishPage() {
                 className="w-full max-w-sm mb-10 text-left"
               >
                 <SocialPreview 
-                  platform={wishData.platform}
-                  caption={wishData.caption} 
-                  imageUrls={wishData.image_paths.map(p => `${API_BASE.replace('/api', '')}/uploads/${p}`)} 
+                  platform={wishData.platform || 'linkedin'}
+                  caption={wishData.caption || wishData.message} 
+                  imageUrls={wishData.image_paths ? wishData.image_paths.map(p => `${API_BASE.replace('/api', '')}/uploads/${p}`) : []} 
                 />
               </motion.div>
             )}
@@ -467,7 +517,11 @@ export default function WishPage() {
 
         {stage === 'granted' && (
           <motion.div key="granted" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <WishGranted postUrl={postUrl} platform={wishData?.platform || 'linkedin'} />
+            <WishGranted 
+              postUrl={postUrl} 
+              platform={wishData?.platform || 'linkedin'} 
+              wishData={wishData} 
+            />
           </motion.div>
         )}
 
@@ -493,6 +547,7 @@ export default function WishPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      )}
     </div>
   )
 }

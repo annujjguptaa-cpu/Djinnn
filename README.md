@@ -8,12 +8,11 @@ Djinn is an intelligent agent that transforms images into engaging social media 
 
 - 🤖 **AI Caption Generation** - Google Gemini or OpenAI integration for intelligent post creation
 - 📱 **Dual Platform Support** - LinkedIn & X (Twitter) OAuth 2.0 integration
-- 🖼️ **Smart Image Processing** - Automatic optimization and upload handling
-- 💾 **Persistent Wish Storage** - Save drafts and wishes as JSON
-- ⚡ **Real-time Streaming** - Stream captions as they're generated
-- 🔐 **Secure Authentication** - PKCE for X, OAuth 2.0 for LinkedIn
+- 🚀 **Unified GitHub Hub** - Combined B2C (One-click) and B2B (Governance) repository command center
+- 🛡️ **Security Guardian** - Post-processing engine that hard-blocks pushes containing leaked API keys or secrets
+- 🏢 **White-Label Portal** - Clean, branded project submission portals for external teams and agencies
 - 🎨 **Social Preview** - See exactly how your post will look across platforms
-- 📸 **Image Gallery** - Navigate and manage multiple images per post
+- ⚡ **Real-time Analytics** - Tracking deployment velocity and team submission compliance
 
 ## 🛠️ Tech Stack
 
@@ -29,12 +28,12 @@ Djinn is an intelligent agent that transforms images into engaging social media 
 ### Backend
 
 - **FastAPI** - Modern Python web framework
-- **Uvicorn** - ASGI server
+- **PyGitHub** - GitHub API v3 integration
 - **Pydantic** - Data validation
 - **HTTPX** - Async HTTP client
-- **PIL/Pillow** - Image processing
+- **cryptography** - Fernet encryption for secure token storage
+- **recharts** - High-velocity data visualization for B2B analytics
 - **google-generativeai** - Gemini AI integration
-- **openai** - OpenAI integration
 
 ---
 
@@ -71,34 +70,27 @@ python -m uvicorn main:app --host 127.0.0.1 --port 8000
 ## 📁 Project Structure
 
 ```
-djinn/
 ├── backend/
 │   ├── main.py                 # FastAPI app entry point
-│   ├── settings.py             # Configuration & environment vars
-│   ├── models.py               # Data models (Pydantic)
-│   ├── requirements.txt         # Python dependencies
+│   ├── db_supabase.py          # Supabase & Persistence layer
 │   ├── routers/
-│   │   ├── auth.py            # LinkedIn OAuth routes
-│   │   ├── x_auth.py          # X/Twitter OAuth routes
-│   │   ├── post.py            # Post creation & execution
-│   │   └── connect.py         # Connection management
-│   ├── uploads/               # User uploaded images
-│   └── wishes.json            # Persistent wish storage
+│   │   ├── github.py          # Unified B2C/B2B repository logic
+│   │   ├── workflow.py        # Template & White-label management
+│   │   ├── auth.py            # Platform authentication
+│   │   └── post.py            # AI social posting engine
+│   ├── services/
+│   │   ├── guardian.py        # Security secret scanner
+│   │   ├── ai_readme.py       # AI documentation generator
+│   │   └── ai_engine.py       # Core LLM orchestrator
+│   └── migrations/            # SQL structural updates
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── main.jsx           # React entry point
-│   │   ├── App.jsx            # Root component
-│   │   ├── components/
-│   │   │   ├── Navbar.jsx
-│   │   │   ├── SocialPreview.jsx    # Platform-specific preview
-│   │   │   ├── LinkedInPreview.jsx
-│   │   │   └── PageWrapper.jsx
 │   │   ├── pages/
-│   │   │   ├── Home.jsx       # Landing page
-│   │   │   ├── AutoPost.jsx   # Post creation
-│   │   │   ├── AutoConnect.jsx
-│   │   │   └── WishPage.jsx   # Wish execution
+│   │   │   ├── GitHubHub.jsx  # Unified Command Center
+│   │   │   ├── PersonalPushView.jsx # One-click magic wizard
+│   │   │   ├── WhiteLabelPortal.jsx # Branded recipient entry
+│   │   │   └── WorkflowBuilder.jsx # B2B Blueprint creator
 │   │   ├── assets/
 │   │   └── styles/
 │   ├── package.json
@@ -117,9 +109,10 @@ djinn/
 | Page             | Route           | Description                                            |
 | ---------------- | --------------- | ------------------------------------------------------ |
 | **Home**         | `/`             | Djinn hero + feature overview                          |
-| **Auto Post**    | `/auto-post`    | Image upload → AI caption → platform preview → publish |
-| **Auto Connect** | `/auto-connect` | Connection request builder                             |
-| **Wish Page**    | `/wish/:id`     | OAuth authentication → post publication                |
+| **GitHub Hub**   | `/github-dashboard`| Unified B2C Push + B2B Governance Command Center    |
+| **Workflow Build**| `/workflow-builder`| Admin blueprint & branding creator                  |
+| **White-Label**  | `/share/:id`    | External project submission portal                      |
+| **Auto Post**    | `/auto-post`    | AI caption → platform preview → publish                |
 
 ## 🔌 API Endpoints
 

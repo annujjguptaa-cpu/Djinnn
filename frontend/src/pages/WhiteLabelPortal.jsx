@@ -10,26 +10,40 @@ const WhiteLabelPortal = () => {
     const [step, setStep] = useState(1) // 1: Upload, 2: Push, 3: Success
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState(null)
+    const [isConnected, setIsConnected] = useState(false)
 
     useEffect(() => {
-        // Fetch portal configuration (Logo, Portal Name, Workflow rules)
-        // axios.get(`/api/github/external/config/${linkId}`).then(res => setConfig(res.data))
-        // Mock config for now
+        const user = new URLSearchParams(window.location.search).get('user')
+        if (user) setIsConnected(true)
+        
+        // Fetch link metadata (mocked for demo logic)
         setConfig({
             portal_name: "Engineering Submission Portal",
-            custom_logo_url: null, // Falls back to generic icon
-            workflow_name: "Hackathon 2026 Core"
+            custom_logo_url: null,
+            workflow_name: "Hackathon 2026 Core",
+            type: "workflow" // workflow, fork, or org
         })
     }, [linkId])
 
-    const handleUpload = async () => {
+    const handleAction = async () => {
+        if (!isConnected) {
+            window.location.href = `http://localhost:8000/api/auth/github/login?state=${linkId}`
+            return
+        }
+        
         setLoading(true)
-        // Mock push execution
-        setTimeout(() => {
-            setResult({ repo_url: "https://github.com/user/hackathon-2026" })
+        try {
+            const res = await axios.post(`http://localhost:8000/api/auth/github/link/execute`, {
+                link_id: linkId,
+                user_id: 'recipient_id', // Flowing from auth
+                path: 'C:\\Users\\ASUS\\OneDrive\\Desktop\\Djinn' // Manual select fallback
+            })
+            setResult(res.data)
             setStep(3)
-            setLoading(false)
-        }, 2000)
+        } catch (e) {
+            console.error("Execution failed", e)
+        }
+        setLoading(false)
     }
 
     if (!config) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><Loader2 className="animate-spin text-gray-400" /></div>
@@ -61,19 +75,35 @@ const WhiteLabelPortal = () => {
                 <div className="bg-white rounded-3xl border border-gray-200 p-12 shadow-sm">
                     {step === 1 && (
                         <div className="text-center">
-                            <h2 className="text-3xl font-extrabold mb-4">Submit Your Project</h2>
-                            <p className="text-gray-500 mb-12">Your project will be validated against **{config.workflow_name}** standards before pushing to GitHub.</p>
+                            <h2 className="text-3xl font-extrabold mb-4">
+                                {config.type === 'fork' ? "Fork Repository" : config.type === 'org' ? "Join Organization" : "Submit Your Project"}
+                            </h2>
+                            <p className="text-gray-500 mb-12">
+                                {config.type === 'workflow' 
+                                    ? `Your project will be validated against **${config.workflow_name}** standards before pushing.`
+                                    : `Accept the invitation to receive access to the **${config.workflow_name}** resources.`
+                                }
+                            </p>
 
-                            <div className="border-2 border-dashed border-gray-200 rounded-3xl p-16 hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group mb-12">
-                                <div className="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-gray-100 text-gray-400 group-hover:text-blue-500 transition-colors">
-                                    <Upload size={32} />
+                            {config.type === 'workflow' && (
+                                <div className="border-2 border-dashed border-gray-200 rounded-3xl p-16 hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group mb-12">
+                                    <div className="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-gray-100 text-gray-400 group-hover:text-blue-500 transition-colors">
+                                        <Upload size={32} />
+                                    </div>
+                                    <div className="font-bold text-lg mb-2">Drop your project folder here</div>
+                                    <div className="text-sm text-gray-400">or click to browse from your device</div>
                                 </div>
-                                <div className="font-bold text-lg mb-2">Drop your project folder here</div>
-                                <div className="text-sm text-gray-400">or click to browse from your device</div>
-                            </div>
+                            )}
 
-                            <button onClick={handleUpload} className="w-full py-5 bg-gray-900 hover:bg-black text-white rounded-2xl font-bold text-lg transition-all shadow-xl shadow-gray-200 flex items-center justify-center gap-3">
-                                <Rocket size={20} /> Deploy via Portal
+                            <button onClick={handleAction} className="w-full py-5 bg-gray-900 hover:bg-black text-white rounded-2xl font-bold text-lg transition-all shadow-xl shadow-gray-200 flex items-center justify-center gap-3">
+                                {isConnected ? (
+                                    <>
+                                        <Rocket size={20} /> 
+                                        {config.type === 'fork' ? "Execute Fork" : config.type === 'org' ? "Join Now" : "Deploy via Portal"}
+                                    </>
+                                ) : (
+                                    <>Connect GitHub Identity</>
+                                )}
                             </button>
                         </div>
                     )}

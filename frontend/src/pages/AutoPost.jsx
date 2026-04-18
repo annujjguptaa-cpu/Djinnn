@@ -22,6 +22,7 @@ export default function AutoPost() {
   const [isCreating, setIsCreating] = useState(false)
   const [isTemplate, setIsTemplate] = useState(false)
   const [optimizationStatus, setOptimizationStatus] = useState("")
+  const [summonError, setSummonError] = useState('')
   const fileInputRef = useRef(null)
 
   // AI Speed Opt: Resize images on frontend before upload
@@ -100,6 +101,7 @@ export default function AutoPost() {
   const handleSummon = async () => {
     if (!caption) return
     setIsCreating(true)
+    setSummonError('')
     try {
       const res = await axios.post(`${API_BASE}/post/create`, { 
         caption, 
@@ -108,9 +110,9 @@ export default function AutoPost() {
         platform
       })
       setWishLink(`${window.location.origin}/wish/${res.data.wish_id}`)
-    } catch {
-      const id = `post_${Math.random().toString(36).slice(2, 10)}`
-      setWishLink(`${window.location.origin}/wish/${id}`)
+    } catch (err) {
+      console.error('Summon failed:', err)
+      setSummonError('Could not connect to Djinn backend. Make sure the server is running on port 8000.')
     } finally {
       setIsCreating(false)
     }
@@ -400,6 +402,17 @@ export default function AutoPost() {
                 )}
               </motion.button>
             </motion.div>
+
+            {/* Error */}
+            {summonError && (
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-2xl p-4 border border-red-500/30 bg-red-500/5 text-red-400 text-sm"
+              >
+                ⚠️ {summonError}
+              </motion.div>
+            )}
 
             {/* Result Link */}
             <AnimatePresence>

@@ -7,10 +7,11 @@ from settings import settings
 from db_supabase import SupabaseDB
 from services.guardian import GuardianScanner
 from services.ai_readme import AIReadmeService
-from github import Github as PyGithub
+from services.github_service import GitHubService
 import json
 import os
 import base64
+from github import Github as PyGithub
 
 router = APIRouter(prefix="/auth/github", tags=["github_auth"])
 
@@ -51,55 +52,86 @@ async def github_callback(code: str, state: str):
         access_token = token_data.get("access_token")
         
         if not access_token:
-            raise HTTPException(status_code=400, detail="GitHub Token exchange failed")
+            detail = token_data.get("error_description") or "GitHub Token exchange failed"
+            raise HTTPException(status_code=400, detail=detail)
 
         # 2. Get User Info
         user_res = await client.get(
             "https://api.github.com/user",
-            headers={"Authorization": f"Bearer {access_token}"}
+            headers={"Authorization": f"Bearer {access_token}", "Accept": "application/json"}
         )
+        if user_res.status_code != 200:
+            raise HTTPException(status_code=500, detail="Failed to fetch GitHub user info")
+            
         user_data = user_res.json()
-        username = user_data["login"]
+        username = user_data.get("login")
+        if not username:
+            raise HTTPException(status_code=500, detail="GitHub username not found in profile")
 
         # 3. Store in Supabase (Encrypted)
-        user_id = state # Simplification for demo
-        await SupabaseDB.save_github_auth(user_id, access_token, username)
+        user_id = state # State carries the user identifier
+        try:
+            await SupabaseDB.save_github_auth(user_id, access_token, username)
+        except Exception as e:
+            print(f"Supabase Auth Save Error: {e}")
+            raise HTTPException(status_code=500, detail="Failed to persist GitHub identity")
 
         # 4. Redirect to Frontend Dashboard
-        return RedirectResponse(url=f"{settings.FRONTEND_URL}/github-dashboard?status=connected&user={username}")
+        return RedirectResponse(url=f"{settings.FRONTEND_URL}/github-personal?status=connected&user={username}&id={user_id}")
 
-@router.get("/detect-projects")
-async def detect_projects():
-    """Detect recent projects from VS Code storage."""
-    # Standard Windows VS Code storage path
-    vscode_path = os.path.expandvars(r"%APPDATA%\Code\User\globalStorage\storage.json")
-    if not os.path.exists(vscode_path):
-        return {"projects": []}
-    
+@router.get("/stats")
+async def get_github_stats():
+    """Aggregate statistics for the B2B Admin Dashboard."""
     try:
-        with open(vscode_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            workspaces = data.get("profileAssociations", {}).get("workspaces", {})
-            
-            # Extract and clean paths
-            projects = []
-            for uri in workspaces.keys():
-                if uri.startswith("file:///"):
-                    # Convert file:///c%3A/Users/... to C:\Users\...
-                    raw_path = uri.replace("file:///", "").replace("%3A", ":")
-                    path = os.path.normpath(raw_path)
-                    if os.path.exists(path):
-                        projects.append({
-                            "name": os.path.basename(path),
-                            "path": path,
-                            "last_modified": os.path.getmtime(path)
-                        })
-            
-            # Sort by most recent
-            projects.sort(key=lambda x: x['last_modified'], reverse=True)
-            return {"projects": projects[:10]}
+        # 1. Fetch all executions
+        executions = await SupabaseDB._request("GET", "github_executions")
+        if not executions:
+            return {
+                "total_repos": 0,
+                "time_saved": 0,
+                "compliance_rate": 100,
+                "recent_activity": []
+            }
+
+        total_repos = len(executions)
+        total_time_saved = sum(e.get("time_saved", 0) for e in executions)
+        
+        # 2. Map for chart data
+        recent_activity = sorted(executions, key=lambda x: x.get('created_at', ''), reverse=True)[:10]
+        
+        return {
+            "total_repos": total_repos,
+            "time_saved": f"{total_time_saved // 60}h {total_time_saved % 60}m",
+            "compliance_rate": 98, # Mocked for now
+            "recent_activity": recent_activity
+        }
     except Exception as e:
-        return {"error": str(e), "projects": []}
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/list-repos")
+async def list_repositories(user_id: str):
+    """Fetch live repository list for the connected user."""
+    auth_data = await SupabaseDB.get_github_auth(user_id)
+    if not auth_data:
+        raise HTTPException(status_code=400, detail="GitHub not connected")
+    
+    gh = PyGithub(auth_data['access_token'])
+    try:
+        repos = []
+        for repo in gh.get_user().get_repos(sort='updated', direction='desc'):
+            repos.append({
+                "id": repo.id,
+                "name": repo.name,
+                "full_name": repo.full_name,
+                "html_url": repo.html_url,
+                "description": repo.description,
+                "language": repo.language,
+                "stars": repo.stargazers_count,
+                "updated_at": repo.updated_at.isoformat()
+            })
+        return {"repos": repos[:20]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/link/create")
 async def create_shareable_link(request: Request):
@@ -109,14 +141,13 @@ async def create_shareable_link(request: Request):
     target_id = data.get("target_id")
     admin_id = data.get("admin_id")
     
-    # Logic to save to Supabase and return unique link_id
     link_id = str(uuid.uuid4())[:8]
     # await SupabaseDB.save_link(link_id, link_type, target_id, admin_id)
     return {"link_id": link_id, "url": f"{settings.FRONTEND_URL}/share/{link_id}"}
 
 @router.post("/push/personal")
 async def personal_push(request: Request):
-    """The 'Summon Your Djinn' B2C flow with real PyGitHub push."""
+    """Refactored B2C flow using GitHubService."""
     data = await request.json()
     project_path = data.get("path")
     user_id = data.get("user_id")
@@ -126,68 +157,76 @@ async def personal_push(request: Request):
     if not auth_data:
          raise HTTPException(status_code=400, detail="GitHub not connected")
     
-    gh = PyGithub(auth_data['access_token'])
-    user = gh.get_user()
-
-    # 2. Read files and Run Guardian Security Scan
-    project_files = {} 
-    for root, dirs, files in os.walk(project_path):
-        if any(exc in root for exc in ['node_modules', '.git', '__pycache__', '.env']):
-            continue
-        for file in files:
-            full_path = os.path.join(root, file)
-            try:
-                with open(full_path, 'r', encoding='utf-8') as f:
-                    project_files[os.path.relpath(full_path, project_path)] = f.read()
-            except: continue
-
-    scan_result = GuardianScanner.scan_project(project_files)
-    if not scan_result["is_safe"]:
-        return {"status": "blocked", "findings": scan_result["findings"]}
-
-    # 3. Create Repo and Push
-    repo_name = os.path.basename(project_path)
+    # 2. Delegate to Service
+    service = GitHubService(auth_data['access_token'])
     try:
-        repo = user.create_repo(repo_name)
-        
-        # Add AI README
-        readme_content = await AIReadmeService.generate_readme(repo_name, "\n".join(project_files.keys()))
-        repo.create_file("README.md", "Initial commit - pushed via Djinn", readme_content)
-        
-        # Push all other files
-        for path, content in project_files.items():
-            if path == "README.md": continue
-            repo.create_file(path, "Initial commit - pushed via Djinn", content)
-            
-        return {
-            "status": "success",
-            "repo_url": repo.html_url,
-            "message": f"Successfully summoned {repo_name} to GitHub!"
-        }
+        result = await service.summon_personal_push(user_id, project_path)
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/link/execute")
 async def execute_link_action(request: Request):
-    """Execute action when a shareable link is clicked/used."""
+    """Refactored link execution using GitHubService."""
     data = await request.json()
     link_id = data.get("link_id")
-    user_id = data.get("user_id") # The clicker
+    user_id = data.get("user_id")
 
-    # 1. Fetch link info (mocked for now)
-    # link = await SupabaseDB.get_link(link_id)
-    link = {"type": "fork", "target_repo": "octocat/hello-world"} # Mock
+    # 1. Fetch link info (mocked/queried from registry)
+    # payload = await SupabaseDB.get_link(link_id)
+    payload = {"type": "fork", "target_repo": "annujjguptaa-cpu/Djinn---AI-Action-Agent"} # Demo Target
     
     auth_data = await SupabaseDB.get_github_auth(user_id)
-    gh = PyGithub(auth_data['access_token'])
-    user = gh.get_user()
+    if not auth_data:
+        raise HTTPException(status_code=400, detail="Clicker GitHub not connected")
 
-    if link["type"] == "fork":
-        target_repo = gh.get_repo(link["target_repo"])
-        forked_repo = user.create_fork(target_repo)
-        return {"status": "success", "repo_url": forked_repo.html_url}
-    
-    elif link["type"] == "org":
-        # Invite to org (requires admin token for the org)
-        # gh_admin.get_organization(link["org_name"]).add_to_members(user)
-        return {"status": "success", "message": "Invitation sent!"}
+    # 2. Delegate to Service
+    service = GitHubService(auth_data['access_token'])
+    try:
+        result = await service.execute_link_action(user_id, link_id, payload)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/ping")
+async def ping():
+    return {"status": "GitHub Router Awake"}
+
+@router.get("/team")
+async def get_team(admin_id: str):
+    """Fetch all members in the admin's network."""
+    members = await SupabaseDB.get_team_members(admin_id)
+    return {"members": members or []}
+
+@router.post("/team")
+async def add_member(admin_id: str, request: Request):
+    """Add a new member to the team network."""
+    data = await request.json()
+    return await SupabaseDB.add_team_member(admin_id, data)
+
+@router.delete("/team/{member_id}")
+async def remove_member(member_id: str):
+    """Delete a team member."""
+    return await SupabaseDB.delete_team_member(member_id)
+
+@router.get("/links")
+async def list_links(admin_id: str):
+    """Fetch all active streams."""
+    links = await SupabaseDB.get_active_links(admin_id)
+    return {"links": links or []}
+
+@router.post("/links")
+async def generate_link(admin_id: str, request: Request):
+    """Generate and persist a magic link."""
+    data = await request.json()
+    link_id = str(uuid.uuid4())[:8]
+    payload = {
+        "id": link_id,
+        "admin_id": admin_id,
+        "type": data.get("type", "workflow"),
+        "label": data.get("label", "Standard Push"),
+        "color": data.get("color", "#8b5cf6"),
+        "created_at": "now()" # Basic timestamp hint
+    }
+    await SupabaseDB.save_magic_link(payload)
+    return {"link_id": link_id, "url": f"{settings.FRONTEND_URL}/share/{link_id}"}

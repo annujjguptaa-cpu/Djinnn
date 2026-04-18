@@ -44,13 +44,18 @@ CAPTION_TEMPLATES = [
 
 
 async def stream_caption_generator(image_paths: List[str], context: str = "", platform: str = "linkedin") -> AsyncGenerator[str, None]:
-    """Async generator for streaming AI caption chunks (Supports OpenAI & Gemini)."""
+    """Async generator for streaming AI caption chunks (Supports Gemini & OpenAI)."""
     global client
     
-    # Reload .env and keys every time to ensure no-restart updates work
     load_dotenv()
     gemini_key = os.getenv("GEMINI_API_KEY") or settings.GEMINI_API_KEY
     openai_key = os.getenv("OPENAI_API_KEY") or settings.OPENAI_API_KEY
+
+    is_x = (platform == 'x')
+    role = "Professional X (Twitter) Ghostwriter" if is_x else "Professional LinkedIn Ghostwriter"
+    goal = "Write a viral tweet strictly under 280 characters" if is_x else "Write an engaging, high-performing LinkedIn post."
+    guidelines = "Punchy, 2-3 hashtags, line breaks for readability. Under 280 chars total." if is_x else "Professional tone, 3-5 hashtags, storytelling structure. 150-300 words."
+    user_context = context if context else "Craft a compelling post that highlights achievement, growth or insight."
 
     # 1. Try Gemini first (Generous Free Tier)
     if gemini_key:
@@ -58,16 +63,12 @@ async def stream_caption_generator(image_paths: List[str], context: str = "", pl
             genai.configure(api_key=gemini_key)
             model = genai.GenerativeModel('gemini-1.5-flash')
             
-            is_x = (platform == 'x')
-            role = "Professional X (Twitter) Ghostwriter" if is_x else "Professional LinkedIn Ghostwriter"
-            goal = "Write a viral, high-performing tweet/thread (strictly < 280 chars)" if is_x else "Write an engaging, high-performing LinkedIn story."
-            guidelines = "Punchy, use 2-3 hashtags, use line breaks for readability" if is_x else "Professional tone, 3-5 hashtags, find a common theme across images."
-            
             prompt = (
-                f"Role: {role}.\n"
-                f"Goal: {goal}.\n"
-                f"Context: {context if context else 'Analyze visual elements and craft a story.'}\n"
-                f"Guidelines: {guidelines}"
+                f"You are a {role}.\n"
+                f"Goal: {goal}\n"
+                f"Context from user: {user_context}\n"
+                f"Style guidelines: {guidelines}\n"
+                f"Output ONLY the final post text. No preamble, no explanation."
             )
             
             contents = [prompt]
@@ -91,47 +92,41 @@ async def stream_caption_generator(image_paths: List[str], context: str = "", pl
         except Exception as e:
             print(f"Gemini Streaming Error: {e}")
 
-    # 2. Try OpenAI (Original logic)
+    # 2. Try OpenAI — supports both image + text-only mode
     if openai_key:
         if not client:
             client = AsyncOpenAI(api_key=openai_key)
-        
-        images_bytes = []
-        for path in image_paths:
-            filepath = os.path.join(UPLOAD_DIR, path)
-            if os.path.exists(filepath):
-                with open(filepath, "rb") as f:
-                    images_bytes.append(f.read())
 
-        if images_bytes:
-            is_x = (platform == 'x')
-            role = "Professional X (Twitter) Ghostwriter" if is_x else "Professional LinkedIn Ghostwriter"
-            goal = "Write a viral tweet (strictly < 280 chars)" if is_x else "Write an engaging LinkedIn story."
-            
-            try:
-                content = [{"type": "text", "text": f"Role: {role}. Goal: {goal}."}]
-                if context: content[0]["text"] += f"\nContext: {context}"
+        try:
+            text_prompt = f"You are a {role}. {goal}\nContext: {user_context}\nGuidelines: {guidelines}\nOutput ONLY the final post text."
+            messages_content = [{"type": "text", "text": text_prompt}]
 
-                for img_bytes in images_bytes:
+            # Attach images if available
+            for path in image_paths:
+                filepath = os.path.join(UPLOAD_DIR, path)
+                if os.path.exists(filepath):
+                    with open(filepath, "rb") as f:
+                        img_bytes = f.read()
                     base64_img = base64.b64encode(img_bytes).decode("utf-8")
-                    content.append({"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_img}", "detail": "low"}})
+                    messages_content.append({"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_img}", "detail": "low"}})
 
-                response = await client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[{"role": "user", "content": content}],
-                    max_tokens=400,
-                    stream=True
-                )
-                first_chunk = True
-                async for chunk in response:
-                    if chunk.choices and chunk.choices[0].delta.content:
-                        if first_chunk:
-                            yield "__ENGINE_OPENAI__"
-                            first_chunk = False
-                        yield chunk.choices[0].delta.content
-                return
-            except Exception as e:
-                print(f"OpenAI Streaming Error: {e}")
+            model_name = "gpt-4o-mini" if len(image_paths) > 0 else "gpt-3.5-turbo"
+            response = await client.chat.completions.create(
+                model=model_name,
+                messages=[{"role": "user", "content": messages_content}],
+                max_tokens=500,
+                stream=True
+            )
+            first_chunk = True
+            async for chunk in response:
+                if chunk.choices and chunk.choices[0].delta.content:
+                    if first_chunk:
+                        yield "__ENGINE_OPENAI__"
+                        first_chunk = False
+                    yield chunk.choices[0].delta.content
+            return
+        except Exception as e:
+            print(f"OpenAI Streaming Error: {e}")
 
     # 3. Last Resort: Template Fallback
     yield "__ENGINE_TEMPLATE__"
@@ -194,6 +189,22 @@ async def get_post_wish(wish_id: str):
     wish = post_wishes.get(wish_id)
     if not wish:
         raise HTTPException(status_code=404, detail="Wish not found")
+    return wish
+
+
+@router.put("/{wish_id}")
+async def update_post_wish(wish_id: str, payload: PostCreate):
+    """Update a post wish text/images."""
+    wish = post_wishes.get(wish_id)
+    if not wish:
+        raise HTTPException(status_code=404, detail="Wish not found")
+    post_wishes[wish_id].update({
+        "caption": payload.caption,
+        "has_images": payload.has_images,
+        "image_paths": payload.image_paths,
+        "platform": payload.platform,
+    })
+    sync_db() # Persist!
     return wish
 
 
@@ -295,16 +306,19 @@ async def execute_linkedin_post(client: httpx.AsyncClient, wish: dict, access_to
     }
     
     if asset_urns:
-        # Posts API handles single or multi-image content differently
-        posts_payload["content"] = {
-            "media": {
-                "id": asset_urns[0], # Primary image
-                "title": "Djinn Post"
+        if len(asset_urns) == 1:
+            # Single image: use 'media' content type
+            posts_payload["content"] = {
+                "media": {
+                    "id": asset_urns[0]
+                }
             }
-        }
-        if len(asset_urns) > 1:
-            posts_payload["content"]["multiImage"] = {
-                "images": [{"id": urn} for urn in asset_urns]
+        else:
+            # Multiple images: use 'multiImage' content type ONLY (union type — cannot mix)
+            posts_payload["content"] = {
+                "multiImage": {
+                    "images": [{"id": urn} for urn in asset_urns]
+                }
             }
 
     print("------ Attempting Modern Posts API ------")

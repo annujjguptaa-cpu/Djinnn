@@ -33,16 +33,27 @@ export default function LinkedInPreview({ caption, imageUrls = [] }) {
       {/* Media Carousel */}
       {imageUrls.length > 0 && (
         <div className="relative w-full bg-djinn-surface group">
-          <div className="relative overflow-hidden aspect-[4/3]">
+          <div className="relative overflow-hidden aspect-[4/3] touch-none cursor-grab active:cursor-grabbing">
             <AnimatePresence mode="wait">
               <motion.img
                 key={currentIndex}
                 src={imageUrls[currentIndex]}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0}
+                onDragEnd={(e, { offset, velocity }) => {
+                  const swipe = Math.abs(offset.x) > 50 || Math.abs(velocity.x) > 500
+                  if (swipe && offset.x > 0) {
+                    setCurrentIndex(prev => (prev > 0 ? prev - 1 : imageUrls.length - 1))
+                  } else if (swipe && offset.x < 0) {
+                    setCurrentIndex(prev => (prev < imageUrls.length - 1 ? prev + 1 : 0))
+                  }
+                }}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.2 }}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover pointer-events-none"
               />
             </AnimatePresence>
           </div>

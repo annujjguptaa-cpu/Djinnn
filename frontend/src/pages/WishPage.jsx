@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Link2, Trash2, Home, CheckCircle } from 'lucide-react'
 import axios from 'axios'
 import SocialPreview from '../components/SocialPreview'
-import { Bird } from 'lucide-react'
+import { Bird, Sparkles, Upload, X } from 'lucide-react'
 
 // ─── Confetti ───────────────────────────────────────────────────────────────
 function Confetti() {
@@ -349,9 +349,130 @@ export default function WishPage() {
   const [postUrl, setPostUrl] = useState(null)
   const [wishData, setWishData] = useState(null)
   const [isFetching, setIsFetching] = useState(true)
+  
+  // Editor State
+  const [caption, setCaption] = useState('')
+  const [postContext, setPostContext] = useState('')
+  const [imagePaths, setImagePaths] = useState([])
+  const [imagePreviews, setImagePreviews] = useState([])
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [optimizationStatus, setOptimizationStatus] = useState('')
+  const [aiEngine, setAiEngine] = useState(null)
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [fetchKey, setFetchKey] = useState(0)
+  
+  const fileInputRef = useRef(null)
   const executingRef = useRef(false)
 
   const API_BASE = 'http://localhost:8000/api'
+
+  // Image processing logic
+  const optimizeImage = (file) => {
+    return new Promise((resolve) => {
+      const img = new window.Image()
+      img.src = URL.createObjectURL(file)
+      img.onload = () => {
+        const canvas = document.createElement("canvas")
+        const ctx = canvas.getContext("2d")
+        const maxDim = 1024
+        let w = img.width
+        let h = img.height
+
+        if (w > h && w > maxDim) { h *= maxDim / w; w = maxDim }
+        else if (h > maxDim) { w *= maxDim / h; h = maxDim }
+
+        canvas.width = w
+        canvas.height = h
+        ctx.drawImage(img, 0, 0, w, h)
+        canvas.toBlob((blob) => {
+          resolve(new File([blob], file.name, { type: "image/jpeg", lastModified: Date.now() }))
+        }, "image/jpeg", 0.8)
+      }
+    })
+  }
+
+  const processImages = async (newFiles) => {
+    const validFiles = Array.from(newFiles).filter(f => f.type.startsWith('image/')).slice(0, 6 - imagePreviews.length)
+    if (validFiles.length === 0) return
+
+    setOptimizationStatus("Optimizing images...")
+    const optimizedFiles = await Promise.all(validFiles.map(file => optimizeImage(file)))
+
+    // Generate previews
+    const newPreviews = await Promise.all(validFiles.map(file => {
+      return new Promise((resolve) => {
+        const reader = new FileReader()
+        reader.onload = (e) => resolve({ id: Math.random().toString(36).substr(2, 9), src: e.target.result })
+        reader.readAsDataURL(file)
+      })
+    }))
+    setImagePreviews(prev => [...prev, ...newPreviews])
+
+    try {
+      const formData = new FormData()
+      optimizedFiles.forEach(file => formData.append('files', file))
+      const res = await axios.post(`${API_BASE}/post/upload`, formData)
+      const newPaths = res.data.image_paths || []
+      setImagePaths(prev => [...prev, ...newPaths])
+    } catch (err) {
+      console.error("Upload failed", err)
+      setOptimizationStatus("")
+    }
+  }
+
+  const removeImage = (index) => {
+    const newPreviews = [...imagePreviews]
+    newPreviews.splice(index, 1)
+    setImagePreviews(newPreviews)
+
+    const newPaths = [...imagePaths]
+    newPaths.splice(index, 1)
+    setImagePaths(newPaths)
+  }
+
+  const handleRefine = async () => {
+    if (isGenerating) return
+    setCaption('')
+    setIsGenerating(true)
+    setOptimizationStatus("Djinn is thinking...")
+    
+    try {
+      const response = await fetch(`${API_BASE}/post/stream`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image_paths: imagePaths, context: postContext, platform: wishData?.platform || 'linkedin' })
+      })
+
+      if (!response.ok) throw new Error('Stream failed')
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let done = false
+      let fullText = ''
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read()
+        done = doneReading
+        let chunkValue = decoder.decode(value)
+        
+        if (chunkValue.includes("__ENGINE_")) {
+          if (chunkValue.includes("GEMINI")) setAiEngine("GEMINI")
+          else if (chunkValue.includes("OPENAI")) setAiEngine("OPENAI")
+          else if (chunkValue.includes("TEMPLATE")) setAiEngine("TEMPLATE")
+          chunkValue = chunkValue.replace(/__ENGINE_[A-Z]+__/g, '')
+        }
+        fullText += chunkValue
+        setCaption(fullText)
+      }
+    } catch (err) {
+      console.error("Streaming failed", err)
+      setCaption("✨ Djinn encountered a mystical error. You can still manually edit this text.")
+    } finally {
+      setIsGenerating(false)
+      setOptimizationStatus("")
+    }
+  }
 
   // Step 0: Fetch Wish Data
   useEffect(() => {
@@ -360,7 +481,16 @@ export default function WishPage() {
         const path = wishId.startsWith('connect_') ? 'connect' : 'post'
         const res = await axios.get(`${API_BASE}/${path}/${wishId}`)
         setWishData(res.data)
+        setStage('auth')
+        if (!wishId.startsWith('connect_')) {
+            setCaption(res.data.caption || '')
+            if (Array.isArray(res.data.image_paths) && res.data.image_paths.length > 0) {
+                setImagePaths(res.data.image_paths)
+                setImagePreviews(res.data.image_paths.map((p, idx) => ({ id: idx, src: `${API_BASE.replace('/api', '')}/uploads/${p}` })))
+            }
+        }
       } catch (err) {
+        console.error("fetchWish error:", err)
         setStage('error')
         setErrorStatus("This wish has expired or does not exist.")
       } finally {
@@ -368,11 +498,27 @@ export default function WishPage() {
       }
     }
     fetchWish()
-  }, [wishId])
+  }, [wishId, fetchKey])
 
-  // Step 1: Handle Auth Redirect
-  const handleAuth = () => {
+  // Step 1: Handle Auth Redirect (and Sync Edits First)
+  const handleAuth = async () => {
+    setIsUpdating(true)
     const platform = wishData?.platform || 'linkedin'
+    
+    // Save state back to DB if it's a post wish
+    if (!wishId.startsWith('connect_')) {
+        try {
+            await axios.put(`${API_BASE}/post/${wishId}`, {
+                caption,
+                has_images: imagePaths.length > 0,
+                image_paths: imagePaths,
+                platform: platform
+            })
+        } catch (e) {
+            console.error("Failed to sync edited wish data:", e)
+        }
+    }
+    
     // Redirect to backend OAuth initiator with context
     window.location.href = `${API_BASE}/auth/${platform}/login?wish_id=${wishId}`
   }
@@ -449,7 +595,27 @@ export default function WishPage() {
           <h2 className="text-2xl font-bold text-djinn-text mb-2">Summoning your wish...</h2>
           <p className="text-djinn-subtext text-sm">Translating ancient scripts from the database.</p>
         </div>
+      ) : stage === 'error' ? (
+        <div className="flex flex-col items-center justify-center min-h-screen text-center px-6">
+          <div className="text-6xl mb-6">🪄</div>
+          <h2 className="text-2xl font-bold text-djinn-text mb-3">This Wish Has Expired</h2>
+          <p className="text-djinn-subtext text-sm max-w-xs leading-relaxed mb-8">
+            {errorStatus || "This wish does not exist or the Djinn backend is not running."}
+          </p>
+          <div className="flex flex-col gap-3 items-center">
+            <button
+            onClick={() => { setIsFetching(true); setFetchKey(k => k + 1) }}
+              className="px-8 py-3 rounded-xl border border-djinn-purple/30 bg-djinn-purple/10 text-djinn-purple-light font-bold text-sm hover:bg-djinn-purple/20 transition-all"
+            >
+              Try Again
+            </button>
+            <a href="/" className="text-djinn-subtext text-xs underline underline-offset-4 opacity-60 hover:opacity-100 transition-opacity">
+              Return Home
+            </a>
+          </div>
+        </div>
       ) : (
+
         <AnimatePresence mode="wait">
         {stage === 'auth' && (
           <motion.div
@@ -457,55 +623,223 @@ export default function WishPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center min-h-screen text-center px-6"
+            className={`min-h-screen pt-12 pb-24 px-6 ${!wishId.startsWith('connect_') && isEditing ? 'max-w-6xl mx-auto flex flex-col justify-center' : 'flex flex-col items-center justify-center text-center'}`}
           >
             <PlatformAuthPrompt platform={wishData?.platform || 'linkedin'} onAuth={handleAuth} />
 
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              className="mb-8"
-            >
-              <div className="text-8xl">🪔</div>
-            </motion.div>
+            {!wishId.startsWith('connect_') ? (
+              isEditing ? (
+              // ─── POST WISH: EDITABLE 2-COLUMN VIEW ────────
+              <div className="w-full">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-djinn-purple/10 border border-djinn-purple/20 text-djinn-purple-light text-xs font-medium mb-6 w-fit">
+                    <Sparkles size={12} />
+                    A {wishData?.platform === 'x' ? 'X (Twitter)' : 'LinkedIn'} wish awaits you
+                </div>
 
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-djinn-purple/10 border border-djinn-purple/20 text-djinn-purple-light text-sm font-medium mb-6">
-              ✨ A {wishData?.platform === 'x' ? 'X (Twitter)' : 'LinkedIn'} wish awaits you
-            </div>
+                <h1 className="text-4xl font-black text-djinn-text mb-12">
+                   Review & <span className="text-gradient">Refine Your Wish</span>
+                </h1>
 
-            <h1 className="text-4xl font-black text-djinn-text mb-8">
-              Review & <span className="text-gradient">Grant Your Wish</span>
-            </h1>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                   {/* LEFT COLUMN: THE EDITOR */}
+                   <div className="space-y-6 text-left">
+                       {/* 1. Context & AI Regeneration */}
+                       <div className="space-y-2">
+                           <div className="flex items-center justify-between">
+                             <label className="block text-sm font-medium text-djinn-text">1. Edit Text or Regenerate</label>
+                             <div className="flex gap-2">
+                               {aiEngine && (
+                                 <span className="px-2 py-0.5 rounded-full border border-djinn-purple/30 text-djinn-purple-light text-[9px] font-bold uppercase tracking-wider">
+                                     {aiEngine === 'GEMINI' ? '🦢 Gemini Powered' : aiEngine === 'OPENAI' ? '🤖 OpenAI Powered' : '🪄 Magic Mode'}
+                                 </span>
+                               )}
+                               <button onClick={handleRefine} disabled={isGenerating} className="flex items-center gap-1 bg-djinn-purple/10 hover:bg-djinn-purple/20 text-djinn-purple-light border border-djinn-purple/30 px-3 py-1 rounded-full text-[10px] font-bold transition-all disabled:opacity-50">
+                                   {isGenerating ? <Sparkles size={10} className="animate-spin" /> : <Sparkles size={10} />}
+                                   Regenerate
+                               </button>
+                             </div>
+                           </div>
+                           
+                           {isGenerating ? (
+                             <div className="rounded-2xl h-[160px] p-4 space-y-2 border border-djinn-border/50 bg-[#12121a]">
+                               {[100, 80, 90, 60].map((w, i) => <div key={i} className="h-3 rounded shimmer" style={{ width: `${w}%` }} />)}
+                             </div>
+                           ) : (
+                             <div className="relative">
+                               <textarea
+                                 value={caption}
+                                 onChange={(e) => setCaption(e.target.value)}
+                                 className="input-djinn w-full rounded-2xl p-4 text-sm resize-none h-[160px]"
+                               />
+                               <div className="absolute bottom-3 right-4 text-[10px] font-bold text-djinn-subtext">
+                                 {caption.length} / {wishData?.platform === 'x' ? '280' : '3000'}
+                               </div>
+                             </div>
+                           )}
 
-            {/* Live Preview of the Wish */}
-            {!isFetching && wishData && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="w-full max-w-sm mb-10 text-left"
-              >
-                <SocialPreview 
-                  platform={wishData.platform || 'linkedin'}
-                  caption={wishData.caption || wishData.message} 
-                  imageUrls={wishData.image_paths ? wishData.image_paths.map(p => `${API_BASE.replace('/api', '')}/uploads/${p}`) : []} 
-                />
-              </motion.div>
+                           {/* Hidden context textbox for regeneration guidance */}
+                           <input
+                             type="text"
+                             value={postContext}
+                             onChange={(e) => setPostContext(e.target.value)}
+                             placeholder="Give Djinn specific instructions before hitting Regenerate..."
+                             className="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-2 text-xs text-djinn-subtext focus:border-djinn-purple/30 outline-none"
+                           />
+                       </div>
+
+                       {/* 2. Image Management */}
+                       <div className="space-y-2 pt-4">
+                           <div className="flex items-center justify-between">
+                               <label className="block text-sm font-medium text-djinn-text">2. Manage Images (Max 6)</label>
+                           </div>
+                           <div className="grid grid-cols-4 gap-3">
+                               {imagePreviews.map((prev, idx) => (
+                                 <motion.div key={prev.id} layout initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="relative aspect-square rounded-xl overflow-hidden border border-white/5 group">
+                                   <img src={prev.src} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
+                                   <button onClick={() => removeImage(idx)} className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                                     <X size={12} />
+                                   </button>
+                                 </motion.div>
+                               ))}
+                               {imagePreviews.length < 6 && (
+                                 <div onClick={() => fileInputRef.current?.click()} className={`aspect-square rounded-xl border-2 border-dashed border-white/10 hover:border-white/20 hover:bg-white/5 flex flex-col items-center justify-center cursor-pointer transition-all`}>
+                                   <Upload className="text-djinn-subtext mb-1" size={16} />
+                                   <span className="text-[9px] text-djinn-subtext font-medium">Add Image</span>
+                                 </div>
+                               )}
+                           </div>
+                           <input ref={fileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={(e) => processImages(e.target.files)} />
+                       </div>
+                   </div>
+
+                   {/* RIGHT COLUMN: PREVIEW & ACTION */}
+                   <div className="flex flex-col items-center">
+                       <div className="w-full max-w-sm mb-6 text-left relative">
+                           <SocialPreview 
+                             platform={wishData?.platform || 'linkedin'}
+                             caption={caption} 
+                             imageUrls={imagePreviews.map(p => p.src)} 
+                           />
+                       </div>
+                       
+                       <p className="text-djinn-subtext text-xs leading-relaxed mb-6 text-center">
+                         By clicking Grant, your edits will be permanently saved and Djinn will natively deploy this to your feed.
+                       </p>
+
+                       <motion.button
+                         whileHover={{ scale: 1.02 }}
+                         whileTap={{ scale: 0.98 }}
+                         onClick={handleAuth}
+                         disabled={isUpdating}
+                         className="btn-glow px-12 py-4 w-full max-w-sm rounded-2xl text-white font-bold text-base flex items-center justify-center gap-3 disabled:opacity-50"
+                       >
+                         {isUpdating ? <span className="animate-spin text-xl">◌</span> : <CheckCircle size={20} />}
+                         {isUpdating ? "Syncing Magic..." : "Grant this Wish"}
+                       </motion.button>
+                       <button
+                         onClick={() => setIsEditing(false)}
+                         disabled={isUpdating}
+                         className="mt-4 px-6 py-2 rounded-xl border border-djinn-border text-djinn-subtext hover:text-white hover:bg-white/5 transition-all text-sm"
+                       >
+                         Cancel Edit
+                       </button>
+                       <p className="text-djinn-subtext text-[10px] mt-4 opacity-60">Wish ID: {wishId}</p>
+                   </div>
+                </div>
+              </div>
+              ) : (
+                // ─── POST WISH: DEFAULT CENTERED PREVIEW VIEW ──────
+                <>
+                   <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }} className="mb-8">
+                     <div className="text-8xl">🪔</div>
+                   </motion.div>
+
+                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-djinn-purple/10 border border-djinn-purple/20 text-djinn-purple-light text-sm font-medium mb-6">
+                     ✨ A {wishData?.platform === 'x' ? 'X (Twitter)' : 'LinkedIn'} wish awaits you
+                   </div>
+
+                   <h1 className="text-4xl font-black text-djinn-text mb-6">
+                     Review & <span className="text-gradient">Grant Your Wish</span>
+                   </h1>
+                   
+                   <button
+                     onClick={() => setIsEditing(true)}
+                     className="mb-8 px-5 py-2 rounded-xl border border-djinn-purple/30 bg-djinn-purple/10 text-djinn-purple-light font-bold text-sm flex items-center justify-center gap-2 hover:bg-djinn-purple/20 transition-all shadow-purple-glow"
+                   >
+                     ✏️ Edit Wish
+                   </button>
+
+                   {!isFetching && wishData && (
+                     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-sm mb-10 text-left">
+                       <SocialPreview 
+                         platform={wishData.platform || 'linkedin'}
+                         caption={caption || wishData.caption} 
+                         imageUrls={imagePreviews.map(p => p.src)} 
+                       />
+                     </motion.div>
+                   )}
+
+                   <p className="text-djinn-subtext text-sm max-w-xs leading-relaxed mb-6 opacity-80">
+                     Granting this wish will publish this directly to your {wishData?.platform === 'x' ? 'X (Twitter)' : 'LinkedIn'} profile.
+                   </p>
+
+                   <div className="flex flex-col items-center justify-center">
+                     <motion.button
+                       whileHover={{ scale: 1.02 }}
+                       whileTap={{ scale: 0.98 }}
+                       onClick={handleAuth}
+                       disabled={isUpdating}
+                       className="btn-glow px-10 py-4 w-full max-w-sm rounded-2xl text-white font-bold text-base flex items-center justify-center gap-3 disabled:opacity-50"
+                     >
+                       {isUpdating ? <span className="animate-spin text-xl">◌</span> : <CheckCircle size={20} />}
+                       {isUpdating ? "Syncing..." : "Grant"}
+                     </motion.button>
+                   </div>
+                   <p className="text-djinn-subtext text-xs mt-4 opacity-60">Wish ID: {wishId}</p>
+                </>
+              )
+            ) : (
+              // ─── CONNECT WISH: ORIGINAL CENTERED VIEW ──────
+              <>
+                 <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }} className="mb-8">
+                   <div className="text-8xl">🪔</div>
+                 </motion.div>
+
+                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-djinn-purple/10 border border-djinn-purple/20 text-djinn-purple-light text-sm font-medium mb-6">
+                   ✨ A {wishData?.platform === 'x' ? 'X (Twitter)' : 'LinkedIn'} wish awaits you
+                 </div>
+
+                 <h1 className="text-4xl font-black text-djinn-text mb-8">
+                   Review & <span className="text-gradient">Grant Your Wish</span>
+                 </h1>
+
+                 {!isFetching && wishData && (
+                   <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-sm mb-10 text-left">
+                     <SocialPreview 
+                       platform={wishData.platform || 'linkedin'}
+                       caption={wishData.caption || wishData.message} 
+                       imageUrls={wishData.image_paths ? wishData.image_paths.map(p => `${API_BASE.replace('/api', '')}/uploads/${p}`) : []} 
+                     />
+                   </motion.div>
+                 )}
+
+                 <p className="text-djinn-subtext text-sm max-w-xs leading-relaxed mb-8 opacity-80">
+                   Granting this wish will execute this directly via your connected profile.
+                 </p>
+
+                 <motion.button
+                   whileHover={{ scale: 1.02 }}
+                   whileTap={{ scale: 0.98 }}
+                   onClick={handleAuth}
+                   disabled={isUpdating}
+                   className="btn-glow px-12 py-4 rounded-2xl text-white font-bold text-base flex items-center justify-center gap-3 disabled:opacity-50"
+                 >
+                   {isUpdating ? <span className="animate-spin text-xl">◌</span> : <CheckCircle size={20} />}
+                   {isUpdating ? "Syncing..." : "Grant this Wish"}
+                 </motion.button>
+                 <p className="text-djinn-subtext text-xs mt-4 opacity-60">Wish ID: {wishId}</p>
+              </>
             )}
-
-            <p className="text-djinn-subtext text-sm max-w-xs leading-relaxed mb-8 opacity-80">
-              Granting this wish will publish this directly to your {wishData?.platform === 'x' ? 'X (Twitter)' : 'LinkedIn'} profile.
-            </p>
-
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleAuth}
-              className="btn-glow px-12 py-4 rounded-2xl text-white font-bold text-base flex items-center gap-3"
-            >
-              <CheckCircle size={20} /> Grant this Wish
-            </motion.button>
-
-            <p className="text-djinn-subtext text-xs mt-4 opacity-60">Wish ID: {wishId}</p>
           </motion.div>
         )}
 

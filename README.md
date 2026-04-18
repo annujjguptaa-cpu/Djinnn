@@ -8,9 +8,10 @@ Djinn is an intelligent agent that transforms images into engaging social media 
 
 - 🤖 **AI Caption Generation** - Google Gemini or OpenAI integration for intelligent post creation
 - 📱 **Dual Platform Support** - LinkedIn & X (Twitter) OAuth 2.0 integration
-- 🚀 **Unified GitHub Hub** - Combined B2C (One-click) and B2B (Governance) repository command center
+- 🚀 **Unified GitHub Hub** - Combined B2C (Summoner) and B2B (Governance) repository command center
 - 🛡️ **Security Guardian** - Post-processing engine that hard-blocks pushes containing leaked API keys or secrets
-- 🏢 **White-Label Portal** - Clean, branded project submission portals for external teams and agencies
+- 👥 **Team Network HQ** - Persistent member management and execution oversight for engineering leads
+- 🔗 **Magic Link Registry** - Generate and manage secure, branded project portals for external contributors
 - 🎨 **Social Preview** - See exactly how your post will look across platforms
 - ⚡ **Real-time Analytics** - Tracking deployment velocity and team submission compliance
 
@@ -87,7 +88,7 @@ python -m uvicorn main:app --host 127.0.0.1 --port 8000
 ├── frontend/
 │   ├── src/
 │   │   ├── pages/
-│   │   │   ├── GitHubHub.jsx  # Unified Command Center
+│   │   │   ├── GitHubDashboard.jsx  # Governance & Analytics HQ
 │   │   │   ├── PersonalPushView.jsx # One-click magic wizard
 │   │   │   ├── WhiteLabelPortal.jsx # Branded recipient entry
 │   │   │   └── WorkflowBuilder.jsx # B2B Blueprint creator
@@ -168,9 +169,18 @@ X_CLIENT_ID=your_x_client_id
 X_CLIENT_SECRET=your_x_secret
 X_REDIRECT_URI=http://127.0.0.1:8000/api/auth/x/callback
 
+# GitHub B2B
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_secret
+GITHUB_REDIRECT_URI=http://localhost:8000/api/auth/github/callback
+
+# Supabase
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_anon_key
+
 # Server
 APP_ENV=production
-FRONTEND_URL=http://localhost:5174
+FRONTEND_URL=http://localhost:5173
 ```
 
 ## 🎯 Workflow

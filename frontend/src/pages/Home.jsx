@@ -24,7 +24,7 @@ const DjinnLamp = () => (
   </div>
 )
 
-const FeatureCard = ({ icon: Icon, title, description, badge, buttonLabel, onClick, delay }) => (
+const FeatureCard = ({ icon: Icon, title, description, badge, buttonLabel, onClick, delay, features }) => (
   <motion.div
     initial={{ opacity: 0, y: 40 }}
     animate={{ opacity: 1, y: 0 }}
@@ -52,19 +52,9 @@ const FeatureCard = ({ icon: Icon, title, description, badge, buttonLabel, onCli
 
     {/* Features list */}
     <ul className="space-y-2 text-sm text-djinn-subtext">
-      {title.includes('Social Post') ? (
-        <>
-          <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-djinn-purple inline-block"/>Choose LinkedIn or X (Twitter)</li>
-          <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-djinn-purple inline-block"/>Upload image → AI writes caption</li>
-          <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-djinn-purple inline-block"/>Dynamic social post previews</li>
-        </>
-      ) : (
-        <>
-          <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-djinn-purple inline-block"/>Target by role & location</li>
-          <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-djinn-purple inline-block"/>Personalize your message</li>
-          <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-djinn-purple inline-block"/>Auto-connect campaigns</li>
-        </>
-      )}
+      {features.map((f, i) => (
+          <li key={i} className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-djinn-purple inline-block"/>{f}</li>
+      ))}
     </ul>
 
     {/* CTA Button */}
@@ -139,13 +129,18 @@ export default function Home() {
           </motion.div>
         </div>
 
-        {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        {/* Feature Cards Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
           <FeatureCard
             icon={Share2}
             title="Omni Social Post"
             description="Upload an image and let Djinn craft the perfect post for LinkedIn or X. Preview your feed and share it instantly."
             badge="LinkedIn & X Support"
+            features={[
+              "Choose LinkedIn or X (Twitter)",
+              "Upload image → AI writes caption",
+              "Dynamic social post previews"
+            ]}
             buttonLabel="Make a Wish"
             onClick={() => navigate('/auto-post')}
             delay={0.6}
@@ -155,9 +150,53 @@ export default function Home() {
             title="LinkedIn Auto Connect"
             description="Define your ideal connection — role, location, message. Djinn builds your network on autopilot."
             badge="Network Automation"
+            features={[
+              "Target by role & location",
+              "Personalize your message",
+              "Auto-connect campaigns"
+            ]}
             buttonLabel="Make a Wish"
             onClick={() => navigate('/auto-connect')}
             delay={0.7}
+          />
+          
+          {/* New GitHub Cards */}
+          <FeatureCard
+            icon={() => (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[26px] h-[26px]">
+                <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+                <path d="M9 18c-4.51 2-5-2-7-2" />
+              </svg>
+            )}
+            title="Personal GitHub Summon"
+            description="Grant Djinn permission to standardize your local folders and seamlessly deploy them as verified repositories."
+            badge="Developer Workflows"
+            features={[
+              "One-click OAuth connection",
+              "Auto-generated AI Readmes",
+              "Instant folder-to-repo conversion"
+            ]}
+            buttonLabel="Push Code"
+            onClick={() => navigate('/github-personal')}
+            delay={0.8}
+          />
+          <FeatureCard
+            icon={() => (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[26px] h-[26px]">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+            )}
+            title="Governance B2B HQ"
+            description="Manage your organizational engineering network. Distribute Magic Links to enforce repository standards."
+            badge="Team & Agency Orchestration"
+            features={[
+              "Centralized deployment stats",
+              "Manage authorized developer networks",
+              "Secure 'White-Label' portal links"
+            ]}
+            buttonLabel="Open Command Center"
+            onClick={() => navigate('/github-dashboard')}
+            delay={0.9}
           />
         </div>
 

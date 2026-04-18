@@ -481,7 +481,8 @@ export default function WishPage() {
         const path = wishId.startsWith('connect_') ? 'connect' : 'post'
         const res = await axios.get(`${API_BASE}/${path}/${wishId}`)
         setWishData(res.data)
-        setStage('auth')
+        const hasToken = new URLSearchParams(window.location.search).get('token')
+        if (!hasToken) setStage('auth')
         if (!wishId.startsWith('connect_')) {
             setCaption(res.data.caption || '')
             if (Array.isArray(res.data.image_paths) && res.data.image_paths.length > 0) {
@@ -858,27 +859,6 @@ export default function WishPage() {
             />
           </motion.div>
         )}
-
-        {stage === 'error' && (
-          <motion.div
-            key="error"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center min-h-screen text-center px-6"
-          >
-            <div className="text-8xl mb-6">⚠️</div>
-            <h1 className="text-4xl font-black text-djinn-text mb-2">Wish Interrupted</h1>
-            <p className="text-djinn-subtext text-lg max-w-md mb-8">
-                {errorStatus || "Something went wrong while granting your wish."}
-            </p>
-            <button
-                onClick={() => setStage('auth')}
-                className="px-8 py-3 rounded-xl border border-djinn-border text-djinn-text hover:bg-white/5 transition-all"
-            >
-                Try Again
-            </button>
-          </motion.div>
         )}
       </AnimatePresence>
       )}

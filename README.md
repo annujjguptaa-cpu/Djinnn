@@ -1,69 +1,85 @@
-# 🪔 Djinn - Omni-Platform AI Action Agent
+# 🪔 Djinn — Omni-Platform AI Action Agent
 
-> **You wish it. Djinn does it.** — Automated AI-powered posting to LinkedIn and X (Twitter)
+> **You wish it. Djinn does it.** — The AI-powered automation platform for social media, GitHub governance, and team workflows.
 
-Djinn is an intelligent agent that transforms images into engaging social media posts with AI-generated captions, then automatically publishes them to LinkedIn and X platforms using secure OAuth authentication.
+Djinn is an intelligent agent that lets you upload images, generate AI-crafted captions, preview your post exactly as it will look on LinkedIn or X (Twitter), **edit everything before publishing**, and then publish with a single click via secure OAuth. No scheduling tools. No copy-paste. Pure automation.
+
+---
 
 ## ✨ Features
 
-- 🤖 **AI Caption Generation** - Google Gemini or OpenAI integration for intelligent post creation
-- 📱 **Dual Platform Support** - LinkedIn & X (Twitter) OAuth 2.0 integration
-- 🚀 **Unified GitHub Hub** - Combined B2C (Summoner) and B2B (Governance) repository command center
-- 🛡️ **Security Guardian** - Post-processing engine that hard-blocks pushes containing leaked API keys or secrets
-- 👥 **Team Network HQ** - Persistent member management and execution oversight for engineering leads
-- 🔗 **Magic Link Registry** - Generate and manage secure, branded project portals for external contributors
-- 🎨 **Social Preview** - See exactly how your post will look across platforms
-- ⚡ **Real-time Analytics** - Tracking deployment velocity and team submission compliance
+### 🪄 Social AI Posting
+- **AI Caption Generation** — Google Gemini + OpenAI dual-engine with streaming output; text-only mode works even without images
+- **Interactive Wish Preview** — Open your Magic Link to see the post preview. Hit **Edit Wish** to rewrite the caption, swap images, or regenerate AI content before publishing
+- **Multi-Image Support** — Upload up to 6 images; LinkedIn carousel + X image threads handled automatically
+- **Magic Links** — Shareable wish URLs that let anyone with the link review, edit, and authorize the post
+- **Dual Platform** — LinkedIn (Posts API v2 + UGC fallback) and X (Twitter) OAuth 2.0
+
+### 🐙 GitHub Integration
+- **GitHub (Personal)** — One-click push wizard for individual developers
+- **GitHub B2B** — Full Governance HQ: Team Network, member management, white-label portals, workflow blueprints, and compliance analytics
+- **Security Guardian** — Scans every push for leaked API keys, secrets, and tokens before they land on GitHub
+
+### ⚙️ Platform Architecture
+- **Real-time AI Streaming** — Captions stream word-by-word as Gemini/OpenAI generates them
+- **Persistent Storage** — Supabase with in-memory MOCK_DB fallback for local dev
+- **Static File Serving** — Uploaded images exposed at `/uploads/` for preview rendering
+
+---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-
-- **React 18** - UI framework
-- **Vite** - Build tool & dev server
-- **Tailwind CSS** - Utility-first styling
-- **Framer Motion** - Smooth animations
-- **Axios** - HTTP client
-- **Lucide React** - Icon library
+- **React 18** + **Vite** — UI framework and dev server
+- **Tailwind CSS** — Utility-first styling with custom Djinn design tokens
+- **Framer Motion** — Smooth page transitions and micro-animations
+- **Axios** — HTTP client for API calls
+- **Lucide React** — Icon library
 
 ### Backend
-
-- **FastAPI** - Modern Python web framework
-- **PyGitHub** - GitHub API v3 integration
-- **Pydantic** - Data validation
-- **HTTPX** - Async HTTP client
-- **cryptography** - Fernet encryption for secure token storage
-- **recharts** - High-velocity data visualization for B2B analytics
-- **google-generativeai** - Gemini AI integration
+- **FastAPI** — Modern async Python web framework
+- **HTTPX** — Async HTTP client for LinkedIn/X/GitHub APIs
+- **Google Generative AI** — Gemini 1.5 Flash integration
+- **OpenAI** — GPT-4o-mini (vision) + GPT-3.5-turbo (text-only) fallback
+- **Pydantic** — Request/response data validation
+- **Supabase** — Cloud persistence layer
+- **PyGitHub** — GitHub API v3
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-
 - Python 3.10+
-- Node.js 16+
-- Git
-- API Keys: Google Gemini or OpenAI (at least one)
-- OAuth Credentials: LinkedIn & X Developer Accounts
+- Node.js 18+
+- At least one AI API key (Gemini or OpenAI)
+- OAuth credentials for LinkedIn and/or X
 
-### Frontend (React + Vite + Tailwind)
+### 1. Clone & Install
+
+```bash
+git clone https://github.com/annujjguptaa-cpu/Djinn---AI-Action-Agent.git
+cd Djinn
+```
+
+### 2. Backend Setup
+
+```bash
+cd backend
+pip install -r requirements.txt
+cp .env.example .env   # Fill in your keys
+python -m uvicorn main:app --reload
+# → http://127.0.0.1:8000
+# → API Docs: http://127.0.0.1:8000/docs
+```
+
+### 3. Frontend Setup
 
 ```bash
 cd frontend
 npm install
 npm run dev
-# → http://localhost:5174
-```
-
-### Backend (Python FastAPI)
-
-```bash
-cd backend
-pip install -r requirements.txt
-python -m uvicorn main:app --host 127.0.0.1 --port 8000
-# → API docs at http://127.0.0.1:8000/docs
+# → http://localhost:5173
 ```
 
 ---
@@ -71,131 +87,163 @@ python -m uvicorn main:app --host 127.0.0.1 --port 8000
 ## 📁 Project Structure
 
 ```
+Djinn/
 ├── backend/
-│   ├── main.py                 # FastAPI app entry point
-│   ├── db_supabase.py          # Supabase & Persistence layer
+│   ├── main.py                  # FastAPI app + static file serving
+│   ├── models.py                # Pydantic request/response models
+│   ├── settings.py              # Environment config
+│   ├── db.py                    # In-memory wish store
+│   ├── db_supabase.py           # Supabase persistence layer
 │   ├── routers/
-│   │   ├── github.py          # Unified B2C/B2B repository logic
-│   │   ├── workflow.py        # Template & White-label management
-│   │   ├── auth.py            # Platform authentication
-│   │   └── post.py            # AI social posting engine
+│   │   ├── post.py              # AI caption engine + LinkedIn/X publish
+│   │   ├── connect.py           # Auto-connect workflow
+│   │   ├── auth.py              # LinkedIn OAuth
+│   │   ├── x_auth.py            # X (Twitter) OAuth
+│   │   ├── github.py            # GitHub OAuth + push router
+│   │   └── workflow.py          # B2B workflow + white-label portals
 │   ├── services/
-│   │   ├── guardian.py        # Security secret scanner
-│   │   ├── ai_readme.py       # AI documentation generator
-│   │   └── ai_engine.py       # Core LLM orchestrator
-│   └── migrations/            # SQL structural updates
+│   │   ├── guardian.py          # Secret scanner (pre-push security)
+│   │   ├── ai_engine.py         # LLM orchestrator
+│   │   ├── ai_readme.py         # AI README generator
+│   │   └── github_service.py    # GitHub API wrapper
+│   └── uploads/                 # Served at /uploads/* (static)
 │
-├── frontend/
-│   ├── src/
-│   │   ├── pages/
-│   │   │   ├── GitHubDashboard.jsx  # Governance & Analytics HQ
-│   │   │   ├── PersonalPushView.jsx # One-click magic wizard
-│   │   │   ├── WhiteLabelPortal.jsx # Branded recipient entry
-│   │   │   └── WorkflowBuilder.jsx # B2B Blueprint creator
-│   │   ├── assets/
-│   │   └── styles/
-│   ├── package.json
-│   ├── vite.config.js
-│   └── tailwind.config.js
-│
-├── .env                       # Environment variables (git ignored)
-├── .gitignore
-└── README.md
+└── frontend/
+    └── src/
+        ├── pages/
+        │   ├── Home.jsx              # Platform command hub
+        │   ├── AutoPost.jsx          # AI Social Post Creator
+        │   ├── WishPage.jsx          # Interactive Magic Link preview + editor
+        │   ├── AutoConnect.jsx       # LinkedIn auto-connect
+        │   ├── GitHubDashboard.jsx   # B2B Governance HQ
+        │   ├── PersonalPushView.jsx  # GitHub Personal Push Wizard
+        │   ├── WhiteLabelPortal.jsx  # External contributor portal
+        │   └── WorkflowBuilder.jsx   # B2B Blueprint creator
+        └── components/
+            ├── SocialPreview.jsx     # Live LinkedIn/X post preview
+            ├── Navbar.jsx            # Navigation
+            └── PageWrapper.jsx       # Layout wrapper
 ```
 
 ---
 
 ## ✨ Pages & Routes
 
-| Page             | Route           | Description                                            |
-| ---------------- | --------------- | ------------------------------------------------------ |
-| **Home**         | `/`             | Djinn hero + feature overview                          |
-| **GitHub Hub**   | `/github-dashboard`| Unified B2C Push + B2B Governance Command Center    |
-| **Workflow Build**| `/workflow-builder`| Admin blueprint & branding creator                  |
-| **White-Label**  | `/share/:id`    | External project submission portal                      |
-| **Auto Post**    | `/auto-post`    | AI caption → platform preview → publish                |
+| Page | Route | Description |
+|------|-------|-------------|
+| **Home** | `/` | Platform overview and feature cards |
+| **Auto Post** | `/auto-post` | Upload images → AI caption → Magic Link |
+| **Wish Preview** | `/wish/:id` | Interactive preview — edit, regenerate, grant |
+| **Auto Connect** | `/auto-connect` | LinkedIn connection automation |
+| **GitHub** | `/github-personal` | Personal push wizard |
+| **GitHub B2B** | `/github-dashboard` | Team governance HQ |
+| **Workflow Builder** | `/workflow-builder` | B2B blueprint creator |
+| **White-Label Portal** | `/share/:id` | External contributor submission |
+
+---
 
 ## 🔌 API Endpoints
 
-### Posts
-
-- `POST /api/post/upload` - Upload images
-- `POST /api/post/stream` - Stream caption generation
-- `POST /api/post/create` - Create a post wish
-- `GET /api/post/{wish_id}` - Get post details
-- `POST /api/post/execute/{wish_id}` - Execute and publish post
+### Social Posts
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/post/upload` | Upload images (returns filenames) |
+| `POST` | `/api/post/stream` | Stream AI caption (SSE) |
+| `POST` | `/api/post/create` | Save wish → returns Magic Link ID |
+| `GET` | `/api/post/{wish_id}` | Fetch wish data |
+| `PUT` | `/api/post/{wish_id}` | Update caption/images before publishing |
+| `POST` | `/api/post/execute/{wish_id}` | Publish to LinkedIn or X |
+| `GET` | `/uploads/{filename}` | Serve uploaded image files |
 
 ### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/auth/linkedin/login` | LinkedIn OAuth redirect |
+| `GET` | `/api/auth/linkedin/callback` | LinkedIn OAuth callback |
+| `GET` | `/api/auth/x/login` | X OAuth redirect |
+| `GET` | `/api/auth/x/callback` | X OAuth callback |
+| `GET` | `/api/auth/github/login` | GitHub OAuth redirect |
+| `GET` | `/api/auth/github/callback` | GitHub OAuth callback |
 
-- `GET /api/auth/linkedin` - LinkedIn OAuth redirect
-- `GET /api/auth/linkedin/callback` - LinkedIn OAuth callback
-- `GET /api/auth/x/login` - X OAuth redirect
-- `GET /api/auth/x/callback` - X OAuth callback
+---
+
+## 🎯 The Wish Workflow
+
+```
+1. Open Auto Post
+2. Choose platform (LinkedIn or X)
+3. Enter context (optional — "My new product launch")
+4. Upload images (optional — up to 6)
+5. Djinn streams an AI-written caption
+6. Click "Summon Your Djinn" → get a Magic Link
+7. Open the Magic Link to see the live preview
+8. Hit "✏️ Edit Wish" to change caption, swap images, or regenerate
+9. Click "Grant" → OAuth login → post published instantly
+```
+
+---
 
 ## 🔐 OAuth Setup
 
 ### LinkedIn
-
 1. Go to [developer.linkedin.com](https://developer.linkedin.com)
-2. Create an application
-3. Navigate to **Auth** → **OAuth 2.0 settings**
-4. Add Redirect URI: `http://localhost:8000/api/auth/linkedin/callback`
+2. Create an app, navigate to **Auth** → **OAuth 2.0 Settings**
+3. Add redirect URI: `http://localhost:8000/api/auth/linkedin/callback`
+4. Required scopes: `openid`, `profile`, `email`, `w_member_social`
 5. Copy Client ID and Secret to `.env`
 
 ### X (Twitter)
-
 1. Go to [developer.twitter.com](https://developer.twitter.com)
-2. Create an application with OAuth 2.0 enabled
-3. In **App Settings** → **Authentication settings**
-4. Add Callback URL: `http://127.0.0.1:8000/api/auth/x/callback`
-5. Copy Client ID and Secret to `.env`
+2. Create an app with **OAuth 2.0** enabled (PKCE)
+3. Callback URL: `http://127.0.0.1:8000/api/auth/x/callback`
+4. Copy Client ID and Secret to `.env`
 
-## 🔑 Environment Variables
-
-Copy `.env` template:
-
-```env
-# AI Models (at least one required)
-GEMINI_API_KEY=your_key_from_makersuite.google.com
-OPENAI_API_KEY=your_key_from_platform.openai.com
-
-# LinkedIn
-LINKEDIN_CLIENT_ID=your_linkedin_client_id
-LINKEDIN_CLIENT_SECRET=your_linkedin_secret
-LINKEDIN_REDIRECT_URI=http://localhost:8000/api/auth/linkedin/callback
-
-# X (Twitter)
-X_CLIENT_ID=your_x_client_id
-X_CLIENT_SECRET=your_x_secret
-X_REDIRECT_URI=http://127.0.0.1:8000/api/auth/x/callback
-
-# GitHub B2B
-GITHUB_CLIENT_ID=your_github_client_id
-GITHUB_CLIENT_SECRET=your_github_secret
-GITHUB_REDIRECT_URI=http://localhost:8000/api/auth/github/callback
-
-# Supabase
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_anon_key
-
-# Server
-APP_ENV=production
-FRONTEND_URL=http://localhost:5173
-```
-
-## 🎯 Workflow
-
-1. **Upload Image** → Send to `/api/post/upload`
-2. **Generate Caption** → Stream AI caption via `/api/post/stream`
-3. **Create Wish** → Save post configuration to `/api/post/create`
-4. **Preview** → See how post looks on LinkedIn/X
-5. **Grant Wish** → Authenticate via OAuth
-6. **Execute** → Publish to chosen platform(s)
-
-## 📝 License
-
-MIT License - see LICENSE file for details
+### GitHub
+1. Go to [github.com/settings/developers](https://github.com/settings/developers)
+2. Create an OAuth App
+3. Callback URL: `http://localhost:8000/api/auth/github/callback`
+4. Copy Client ID and Secret to `.env`
 
 ---
 
-**Ready to automate your social media?** 🚀 Get started now!
+## 🔑 Environment Variables
+
+```env
+# AI Models (at least one required)
+GEMINI_API_KEY=your_gemini_key
+OPENAI_API_KEY=your_openai_key
+
+# LinkedIn OAuth
+LINKEDIN_CLIENT_ID=your_client_id
+LINKEDIN_CLIENT_SECRET=your_client_secret
+LINKEDIN_REDIRECT_URI=http://localhost:8000/api/auth/linkedin/callback
+
+# X (Twitter) OAuth
+X_CLIENT_ID=your_x_client_id
+X_CLIENT_SECRET=your_x_client_secret
+X_REDIRECT_URI=http://127.0.0.1:8000/api/auth/x/callback
+
+# GitHub OAuth
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+GITHUB_REDIRECT_URI=http://localhost:8000/api/auth/github/callback
+
+# Supabase (optional — uses in-memory DB if not set)
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_anon_key
+
+# App
+APP_ENV=development
+FRONTEND_URL=http://localhost:5173
+ENCRYPTION_KEY=your_32_byte_fernet_key
+```
+
+---
+
+## 📝 License
+
+MIT License — see LICENSE file for details.
+
+---
+
+**You wish it. Djinn does it.** 🪔🚀

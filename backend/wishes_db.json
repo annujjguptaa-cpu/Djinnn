@@ -79,5 +79,12 @@
       "platform": "linkedin"
     }
   },
-  "connect": {}
+  "connect": {
+    "connect_ddd67a3001": {
+      "type": "connect",
+      "role": "Data Analytics",
+      "location": "Bangalore, Gurugram",
+      "message": "Hi [Name],\n\nI'm a passionate developer exploring exciting opportunities in the tech space. Your work at [Company] really inspired me and I'd love to connect and learn from your journey.\n\nLooking forward to connecting!"
+    }
+  }
 }

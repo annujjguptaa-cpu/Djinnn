@@ -9,6 +9,7 @@ import PersonalPushView from './pages/PersonalPushView'
 import WorkflowBuilder from './pages/WorkflowBuilder'
 import RepositoryPush from './pages/RepositoryPush'
 import WhiteLabelPortal from './pages/WhiteLabelPortal'
+import WishHistory from './pages/WishHistory'
 import Navbar from './components/Navbar'
 
 import { useState } from 'react'
@@ -39,6 +40,7 @@ function App() {
                 <Route path="/workflow-builder" element={<WorkflowBuilder />} />
                 <Route path="/github/push/:workflowId" element={<RepositoryPush />} />
                 <Route path="/share/:linkId" element={<WhiteLabelPortal />} />
+                <Route path="/history" element={<WishHistory />} />
               </Routes>
             </div>
           )}

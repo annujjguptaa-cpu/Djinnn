@@ -4,6 +4,7 @@ import base64
 import httpx
 import uuid
 import random
+from datetime import datetime
 import google.generativeai as genai
 from PIL import Image
 from typing import List, AsyncGenerator
@@ -155,6 +156,9 @@ async def upload_images(files: List[UploadFile] = File(...)):
     return {"image_paths": saved_filenames}
 
 
+    )
+
+
 @router.post("/stream")
 async def stream_caption(request: StreamRequest):
     """Stream AI caption chunks back to the client."""
@@ -162,6 +166,19 @@ async def stream_caption(request: StreamRequest):
         stream_caption_generator(request.image_paths, request.context, request.platform),
         media_type="text/plain"
     )
+
+
+@router.get("/")
+async def list_post_wishes():
+    """List all social post wishes."""
+    # Convert dict to list and sort by created_at desc
+    wishes = []
+    for wid, data in post_wishes.items():
+        wishes.append({**data, "wish_id": wid})
+    
+    # Sort by created_at desc (if exists)
+    wishes.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+    return wishes
 
 
 @router.post("/create", response_model=WishResponse)
@@ -174,6 +191,8 @@ async def create_post_wish(payload: PostCreate):
         "has_images": payload.has_images,
         "image_paths": payload.image_paths,
         "platform": payload.platform,
+        "status": "created",
+        "created_at": datetime.now().isoformat(),
     }
     sync_db() # Persist!
     return WishResponse(
@@ -224,6 +243,16 @@ async def execute_post_wish(wish_id: str, access_token: str):
             return await execute_x_post(client, wish, access_token)
         else:
             raise HTTPException(status_code=400, detail=f"Unsupported platform: {platform}")
+            
+    # Update status after execution attempt (if successful)
+    if res and res.get("status") == "success":
+        post_wishes[wish_id].update({
+            "status": "granted",
+            "executed_at": datetime.now().isoformat()
+        })
+        sync_db()
+    
+    return res
 
 
 async def execute_linkedin_post(client: httpx.AsyncClient, wish: dict, access_token: str):

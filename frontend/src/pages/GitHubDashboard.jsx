@@ -316,11 +316,11 @@ export default function GitHubDashboard() {
                         {isActive ? (
                             <div className="w-full flex items-center justify-between bg-white/5 border border-djinn-purple/30 rounded-xl p-3">
                                 <span className="text-xs truncate text-djinn-purple-light mr-2">
-                                    http://localhost:5173/share/{activeLinkObj.id}
+                                    {window.location.origin}/share/{activeLinkObj.id}
                                 </span>
                                 <button 
                                     onClick={() => {
-                                        navigator.clipboard.writeText(`http://localhost:5173/share/${activeLinkObj.id}`)
+                                        navigator.clipboard.writeText(`${window.location.origin}/share/${activeLinkObj.id}`)
                                         alert('Magic Link Copied to Clipboard!')
                                     }}
                                     className="text-[10px] bg-djinn-purple text-white px-3 py-1 rounded hover:scale-[1.05] transition-all uppercase tracking-wider font-bold"

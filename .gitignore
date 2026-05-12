@@ -9,13 +9,16 @@ package-lock.json
 yarn.lock
 
 # Python
-backend/__pycache__/
-backend/*.pyc
+**/__pycache__/
+*.pyc
 backend/.venv/
 backend/venv/
 *.egg-info/
 dist/
 build/
+debug_*.py
+test_*.py
+backend/debug_stream.py
 
 # IDE
 .vscode/

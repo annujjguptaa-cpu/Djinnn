@@ -119,7 +119,7 @@ export default function AutoPost() {
   }
 
   const handleRefine = async () => {
-    if (imagePaths.length === 0 || isGenerating) return
+    if (isGenerating) return
     await consumeStream(imagePaths, postContext)
   }
 
@@ -335,15 +335,15 @@ export default function AutoPost() {
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  {images.length > 0 && !isGenerating && (
+                  {!isGenerating && (
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={imagePaths.length > 0 ? handleRefine : () => processImages([])}
+                      onClick={handleRefine}
                       className="flex items-center gap-1 text-[11px] font-bold text-djinn-purple-light bg-djinn-purple/10 px-3 py-1.5 rounded-full border border-djinn-purple/20 hover:bg-djinn-purple/30 transition-all shadow-purple-glow"
                     >
                       <Sparkles size={10} />
-                      Regenerate
+                      {images.length > 0 ? 'Regenerate' : 'Generate with Magic'}
                     </motion.button>
                   )}
                   {isGenerating && (

@@ -156,9 +156,6 @@ async def upload_images(files: List[UploadFile] = File(...)):
     return {"image_paths": saved_filenames}
 
 
-    )
-
-
 @router.post("/stream")
 async def stream_caption(request: StreamRequest):
     """Stream AI caption chunks back to the client."""

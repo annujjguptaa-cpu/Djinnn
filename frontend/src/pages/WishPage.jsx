@@ -365,7 +365,7 @@ export default function WishPage() {
   const fileInputRef = useRef(null)
   const executingRef = useRef(false)
 
-  const API_BASE = 'http://localhost:8000/api'
+import { API_BASE } from '../config'
 
   // Image processing logic
   const optimizeImage = (file) => {

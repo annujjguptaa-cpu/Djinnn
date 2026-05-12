@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import axios from 'axios'
+import { API_BASE } from '../config'
 import PageWrapper from '../components/PageWrapper'
 import { 
   Users, Activity, ExternalLink, Plus, CheckCircle, Clock, 
@@ -34,7 +35,7 @@ export default function GitHubDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/api/auth/github/stats`)
+        const res = await axios.get(`${API_BASE}/auth/github/stats`)
         setStats(res.data)
       } catch (err) {
         console.error('Failed to load stats:', err)
@@ -43,7 +44,7 @@ export default function GitHubDashboard() {
 
     const fetchTeam = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/api/auth/github/team?admin_id=${adminId}`)
+        const res = await axios.get(`${API_BASE}/auth/github/team?admin_id=${adminId}`)
         setTeam(res.data.members || [])
       } catch (err) {
         console.error('Failed to load team:', err)
@@ -52,7 +53,7 @@ export default function GitHubDashboard() {
 
     const fetchLinks = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/api/auth/github/links?admin_id=${adminId}`)
+        const res = await axios.get(`${API_BASE}/auth/github/links?admin_id=${adminId}`)
         setLinks(res.data.links || [])
       } catch (err) {
         console.error('Failed to load links:', err)
@@ -71,11 +72,11 @@ export default function GitHubDashboard() {
 
     setLoading(true)
     try {
-      await axios.post(`http://localhost:8000/api/auth/github/team?admin_id=${adminId}`, {
+      await axios.post(`${API_BASE}/auth/github/team?admin_id=${adminId}`, {
         name, role, limit: 10
       })
       // Refresh team list
-      const res = await axios.get(`http://localhost:8000/api/auth/github/team?admin_id=${adminId}`)
+      const res = await axios.get(`${API_BASE}/auth/github/team?admin_id=${adminId}`)
       setTeam(res.data.members || [])
     } catch (err) {
       console.error("Failed to add member:", err)
@@ -88,7 +89,7 @@ export default function GitHubDashboard() {
     if (!confirm("Are you sure you want to remove this member from the network?")) return
     
     try {
-      await axios.delete(`http://localhost:8000/api/auth/github/team/${memberId}`)
+      await axios.delete(`${API_BASE}/auth/github/team/${memberId}`)
       setTeam(prev => prev.filter(m => m.id !== memberId))
     } catch (err) {
       console.error("Failed to delete member:", err)
@@ -98,12 +99,12 @@ export default function GitHubDashboard() {
   const handleActivateStream = async (type, label, color) => {
     setLoading(true)
     try {
-      const res = await axios.post(`http://localhost:8000/api/auth/github/links?admin_id=${adminId}`, {
+      const res = await axios.post(`${API_BASE}/auth/github/links?admin_id=${adminId}`, {
         type, label, color
       })
       alert(`Stream Activated! Magic Link: ${res.data.url}`)
       // Refresh links
-      const lRes = await axios.get(`http://localhost:8000/api/auth/github/links?admin_id=${adminId}`)
+      const lRes = await axios.get(`${API_BASE}/auth/github/links?admin_id=${adminId}`)
       setLinks(lRes.data.links || [])
     } catch (err) {
       console.error("Failed to activate stream:", err)

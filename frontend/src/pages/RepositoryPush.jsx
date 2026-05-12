@@ -5,7 +5,7 @@ import axios from 'axios'
 import PageWrapper from '../components/PageWrapper'
 import { Upload, CheckCircle, FileText, Rocket, AlertCircle, Loader2 } from 'lucide-react'
 
-const API_BASE = 'http://localhost:8000/api'
+import { API_BASE } from '../config'
 
 export default function RepositoryPush() {
   const { workflowId } = useParams()

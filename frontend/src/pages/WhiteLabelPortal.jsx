@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import axios from 'axios'
+import { API_BASE } from '../config'
 import { Upload, ShieldCheck, Rocket, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 
 const WhiteLabelPortal = () => {
@@ -27,13 +28,13 @@ const WhiteLabelPortal = () => {
 
     const handleAction = async () => {
         if (!isConnected) {
-            window.location.href = `http://localhost:8000/api/auth/github/login?state=${linkId}`
+            window.location.href = `${API_BASE}/auth/github/login?state=${linkId}`
             return
         }
         
         setLoading(true)
         try {
-            const res = await axios.post(`http://localhost:8000/api/auth/github/link/execute`, {
+            const res = await axios.post(`${API_BASE}/auth/github/link/execute`, {
                 link_id: linkId,
                 user_id: 'recipient_id', // Flowing from auth
                 path: 'C:\\Users\\ASUS\\OneDrive\\Desktop\\Djinn' // Manual select fallback

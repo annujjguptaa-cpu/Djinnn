@@ -4,8 +4,7 @@ import { Upload, Image, Sparkles, Link2, Copy, Check, X, ThumbsUp, MessageSquare
 import PageWrapper from '../components/PageWrapper'
 import SocialPreview from '../components/SocialPreview'
 import axios from 'axios'
-
-const API_BASE = 'http://localhost:8000/api'
+import { API_BASE } from '../config'
 
 export default function AutoPost() {
   const [images, setImages] = useState([])

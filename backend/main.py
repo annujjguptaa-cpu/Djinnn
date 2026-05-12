@@ -16,11 +16,13 @@ app = FastAPI(
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
     print(f"GLOBAL CRASH: {str(exc)}")
+    from settings import settings
+    frontend_url = settings.FRONTEND_URL
     return JSONResponse(
         status_code=500,
         content={"detail": "Internal Server Error", "msg": str(exc)},
         headers={
-            "Access-Control-Allow-Origin": "http://localhost:5173",
+            "Access-Control-Allow-Origin": frontend_url,
             "Access-Control-Allow-Credentials": "true",
             "Access-Control-Allow-Methods": "*",
             "Access-Control-Allow-Headers": "*",
@@ -28,9 +30,13 @@ async def global_exception_handler(request, exc):
     )
 
 # ─── CORS ────────────────────────────────────────────────────────────────────
+from settings import settings
+frontend_url = settings.FRONTEND_URL
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        frontend_url,
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:5174",

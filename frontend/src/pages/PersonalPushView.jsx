@@ -11,7 +11,9 @@ const GitHub = ({ className }) => (
   </svg>
 )
 
-const API_BASE = 'http://localhost:8000/api/auth/github'
+import { API_BASE as BASE_URL } from '../config'
+
+const API_BASE = `${BASE_URL}/auth/github`
 
 const PersonalPushView = ({ onStepChange }) => {
     const [step, setStep] = useState(1) // 1: Connect, 2: Upload, 3: Success

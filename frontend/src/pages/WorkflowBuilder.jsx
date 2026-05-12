@@ -4,7 +4,7 @@ import axios from 'axios'
 import PageWrapper from '../components/PageWrapper'
 import { Settings, FileCode, Users, ShieldCheck, Zap } from 'lucide-react'
 
-const API_BASE = 'http://localhost:8000/api'
+import { API_BASE } from '../config'
 
 export default function WorkflowBuilder() {
   const [step, setStep] = useState(1)

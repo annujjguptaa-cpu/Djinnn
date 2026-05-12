@@ -15,7 +15,7 @@ import {
   Filter
 } from 'lucide-react'
 
-const API_BASE = "http://localhost:8000/api"
+import { API_BASE } from '../config'
 
 const WishHistory = () => {
   const [activeTab, setActiveTab] = useState('posts')

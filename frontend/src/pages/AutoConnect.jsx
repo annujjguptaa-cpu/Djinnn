@@ -4,7 +4,7 @@ import { Users, MapPin, MessageSquare, Sparkles, Link2, Copy, Check, ChevronRigh
 import PageWrapper from '../components/PageWrapper'
 import axios from 'axios'
 
-const API_BASE = 'http://localhost:8000/api'
+import { API_BASE } from '../config'
 
 const InputField = ({ id, label, placeholder, icon: Icon, value, onChange, type = 'text' }) => (
   <div>

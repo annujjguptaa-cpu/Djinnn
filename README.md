@@ -9,11 +9,12 @@ Djinn is an intelligent agent that lets you upload images, generate AI-crafted c
 ## ✨ Features
 
 ### 🪄 Social AI Posting
-- **AI Caption Generation** — Google Gemini + OpenAI dual-engine with streaming output; text-only mode works even without images
-- **Interactive Wish Preview** — Open your Magic Link to see the post preview. Hit **Edit Wish** to rewrite the caption, swap images, or regenerate AI content before publishing
-- **Multi-Image Support** — Upload up to 6 images; LinkedIn carousel + X image threads handled automatically
-- **Magic Links** — Shareable wish URLs that let anyone with the link review, edit, and authorize the post
-- **Dual Platform** — LinkedIn (Posts API v2 + UGC fallback) and X (Twitter) OAuth 2.0
+- **Omni-Platform AI Agent** — Upload images, auto-generate captions, preview your post exactly as it will look on LinkedIn or X (Twitter).
+- **Gemma 4 Local First** — Runs locally with Ollama (port 11434). Gracefully falls back to Claude 3.5 Sonnet if Gemma 4 is unavailable.
+- **15 Djinn Topics** — Access customized AI workflows spanning across Presence, Opportunity, Growth, Spotlight, Oracle, Scholar, and more.
+- **Waitlist System** — For unlaunched "Coming Soon" features, users can add themselves to a Supabase-backed waitlist directly from the UI.
+- **Interactive Wish Preview** — Open your Magic Link to see the post preview. Hit **Edit Wish** to rewrite the caption, swap images, or regenerate AI content before publishing.
+- **Dual Platform** — LinkedIn (Posts API v2 + UGC fallback) and X (Twitter) OAuth 2.0.
 
 ### 🐙 GitHub Integration
 - **GitHub (Personal)** — One-click push wizard for individual developers
@@ -39,8 +40,8 @@ Djinn is an intelligent agent that lets you upload images, generate AI-crafted c
 ### Backend
 - **FastAPI** — Modern async Python web framework
 - **HTTPX** — Async HTTP client for LinkedIn/X/GitHub APIs
-- **Google Generative AI** — Gemini 1.5 Flash integration
-- **OpenAI** — GPT-4o-mini (vision) + GPT-3.5-turbo (text-only) fallback
+- **Local AI** — Ollama Integration (Gemma 4 model)
+- **Cloud AI Fallback** — Claude 3.5 Sonnet & OpenAI fallback engines
 - **Pydantic** — Request/response data validation
 - **Supabase** — Cloud persistence layer
 - **PyGitHub** — GitHub API v3

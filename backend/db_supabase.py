@@ -22,7 +22,8 @@ MOCK_DB = {
     "github_white_label": [],
     "github_executions": [],
     "github_members": [],
-    "github_links": []
+    "github_links": [],
+    "waitlist": []
 }
 
 class SupabaseDB:
@@ -186,3 +187,16 @@ class SupabaseDB:
     async def get_active_links(admin_id: str):
         """Fetch all live streams for the admin."""
         return await SupabaseDB._request("GET", "github_links", params={"admin_id": f"eq.{admin_id}"})
+
+    @staticmethod
+    async def save_waitlist_entry(email: str, wish_name: str, topic_name: str):
+        return await SupabaseDB._request("POST", "waitlist", data={
+            "email": email,
+            "wish_name": wish_name,
+            "topic_name": topic_name
+        })
+
+    @staticmethod
+    async def check_waitlist_entry(email: str, wish_name: str):
+        data = await SupabaseDB._request("GET", "waitlist", params={"email": f"eq.{email}", "wish_name": f"eq.{wish_name}"})
+        return data[0] if data else None

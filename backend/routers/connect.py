@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from datetime import datetime
+import uuid
 from models import ConnectCreate, WishResponse
 from db import get_connect_wishes, sync_db
+import gemma_brain
 
 router = APIRouter(prefix="/connect", tags=["connect"])
 
@@ -27,12 +29,16 @@ async def create_connect_wish(payload: ConnectCreate):
     if not payload.role:
         raise HTTPException(status_code=400, detail="Target role is required")
 
+    message = payload.message
+    if not message:
+        message = await gemma_brain.generate_message(payload.role, payload.location, "Expand my professional network")
+
     wish_id = f"connect_{uuid.uuid4().hex[:10]}"
     connect_wishes[wish_id] = {
         "type": "connect",
         "role": payload.role,
         "location": payload.location,
-        "message": payload.message,
+        "message": message,
         "status": "created",
         "created_at": datetime.now().isoformat(),
     }

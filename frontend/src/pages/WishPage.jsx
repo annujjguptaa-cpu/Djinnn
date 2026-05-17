@@ -5,6 +5,7 @@ import { Link2, Trash2, Home, CheckCircle } from 'lucide-react'
 import axios from 'axios'
 import SocialPreview from '../components/SocialPreview'
 import { Bird, Sparkles, Upload, X } from 'lucide-react'
+import { API_BASE } from '../config'
 
 // ─── Confetti ───────────────────────────────────────────────────────────────
 function Confetti() {
@@ -364,8 +365,6 @@ export default function WishPage() {
   
   const fileInputRef = useRef(null)
   const executingRef = useRef(false)
-
-import { API_BASE } from '../config'
 
   // Image processing logic
   const optimizeImage = (file) => {

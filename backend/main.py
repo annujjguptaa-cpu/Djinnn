@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from routers import post, connect, auth, x_auth, github, workflow
+import gemma_brain
+from db_supabase import SupabaseDB
+from pydantic import BaseModel
 
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
@@ -12,6 +15,23 @@ app = FastAPI(
     description="Omni-Platform AI Action Agent",
     version="1.3.0",
 )
+
+@app.on_event("startup")
+async def startup_event():
+    await gemma_brain.check_ollama_health()
+
+class WaitlistRequest(BaseModel):
+    email: str
+    wish_name: str
+    topic_name: str
+
+@app.post("/api/waitlist")
+async def add_to_waitlist(req: WaitlistRequest):
+    existing = await SupabaseDB.check_waitlist_entry(req.email, req.wish_name)
+    if existing:
+        return {"status": "already registered"}
+    await SupabaseDB.save_waitlist_entry(req.email, req.wish_name, req.topic_name)
+    return {"status": "success"}
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
@@ -56,6 +76,7 @@ app.include_router(post.router, prefix="/api")
 app.include_router(connect.router, prefix="/api")
 app.include_router(x_auth.router, prefix="/api")
 app.include_router(workflow.router, prefix="/api")
+app.include_router(gemma_brain.router, prefix="/api")
 
 # ─── Static Files (uploaded images) ──────────────────────────────────────────
 import os

@@ -11,6 +11,7 @@ import RepositoryPush from './pages/RepositoryPush'
 import WhiteLabelPortal from './pages/WhiteLabelPortal'
 import WishHistory from './pages/WishHistory'
 import Navbar from './components/Navbar'
+import Topic from './pages/Topic'
 
 import { useState } from 'react'
 import SplashScreen from './components/SplashScreen'
@@ -32,6 +33,7 @@ function App() {
             <div className="h-full">
               <Routes location={location} key={location.pathname}>
                 <Route path="/" element={<Home />} />
+                <Route path="/topic/:topicId" element={<Topic />} />
                 <Route path="/auto-post" element={<AutoPost />} />
                 <Route path="/auto-connect" element={<AutoConnect />} />
                 <Route path="/wish/:wishId" element={<WishPage />} />

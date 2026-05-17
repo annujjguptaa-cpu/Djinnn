@@ -1,5 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+import { API_BASE } from '../config'
 import logo from '../assets/logo.jpg'
 
 const DjinnLogo = () => (
@@ -19,12 +22,22 @@ export default function Navbar() {
 
   const links = [
     { to: '/', label: 'Home' },
-    { to: '/auto-post', label: 'Auto Post' },
-    { to: '/auto-connect', label: 'Auto Connect' },
     { to: '/history', label: 'Vault' },
-    { to: '/github-personal', label: 'GitHub' },
-    { to: '/github-dashboard', label: 'GitHub B2B' },
   ]
+
+  const [aiStatus, setAiStatus] = useState(null)
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/ai/status`)
+        setAiStatus(res.data.active_model)
+      } catch (e) {
+        setAiStatus("Claude Fallback")
+      }
+    }
+    fetchStatus()
+  }, [])
 
   return (
     <motion.nav
@@ -52,6 +65,12 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          {aiStatus && (
+            <div className="ml-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
+              <span className={`w-2 h-2 rounded-full ${aiStatus.includes('Gemma') ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.6)]'}`} />
+              <span className="text-[10px] font-bold text-djinn-subtext uppercase tracking-wider">{aiStatus}</span>
+            </div>
+          )}
         </div>
       </div>
     </motion.nav>

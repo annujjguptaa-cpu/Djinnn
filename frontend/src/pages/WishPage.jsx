@@ -6,6 +6,7 @@ import axios from 'axios'
 import SocialPreview from '../components/SocialPreview'
 import { Bird, Sparkles, Upload, X } from 'lucide-react'
 import { API_BASE } from '../config'
+import logo from '../assets/logo.jpg'
 
 // ─── Confetti ───────────────────────────────────────────────────────────────
 function Confetti() {
@@ -149,28 +150,9 @@ function DjinnWorking({ step, platform }) {
         className="mb-8 relative"
       >
         <div className="absolute inset-0 rounded-full bg-djinn-purple opacity-30 blur-3xl scale-150 animate-pulse" />
-        <svg width="100" height="100" viewBox="0 0 80 80" fill="none">
-          <ellipse cx="40" cy="52" rx="22" ry="10" fill="url(#lampGradW)" opacity="0.9"/>
-          <path d="M18 52 Q22 38 40 36 Q58 38 62 52 Z" fill="url(#lampGradW)"/>
-          <path d="M62 48 Q72 44 74 50 Q72 56 62 54 Z" fill="url(#lampGrad2W)" opacity="0.8"/>
-          <path d="M22 46 Q12 40 14 32 Q16 26 22 28" stroke="url(#lampGrad2W)" strokeWidth="3" fill="none" strokeLinecap="round"/>
-          <motion.ellipse fill="url(#smokeGradW)"
-            initial={{ cx: 76, cy: 46, rx: 6, ry: 8, opacity: 0.8 }}
-            animate={{ scaleY: [1, 1.6, 1], opacity: [0.8, 0.3, 0.8], cy: [46, 40, 46] }}
-            transition={{ duration: 1, repeat: Infinity }}
-          />
-          <defs>
-            <linearGradient id="lampGradW" x1="0" y1="0" x2="1" y2="1">
-              <stop stopColor="#7c3aed"/><stop offset="1" stopColor="#8b5cf6"/>
-            </linearGradient>
-            <linearGradient id="lampGrad2W" x1="0" y1="0" x2="1" y2="1">
-              <stop stopColor="#a78bfa"/><stop offset="1" stopColor="#6d28d9"/>
-            </linearGradient>
-            <radialGradient id="smokeGradW">
-              <stop stopColor="#c4b5fd"/><stop offset="1" stopColor="rgba(139,92,246,0)"/>
-            </radialGradient>
-          </defs>
-        </svg>
+        <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-djinn-purple/50 shadow-purple-glow">
+          <img src={logo} alt="Djinn Logo" className="w-full h-full object-cover scale-110" />
+        </div>
       </motion.div>
 
       <motion.h2

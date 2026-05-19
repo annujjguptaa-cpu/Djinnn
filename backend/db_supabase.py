@@ -33,14 +33,22 @@ class SupabaseDB:
             MOCK_DB[table] = []
             
         if method == "GET":
-            # Simple mock filtering for admin_id or user_id
-            if params and "admin_id" in params:
-                val = params["admin_id"].split(".")[1]
-                return [x for x in MOCK_DB[table] if x.get("admin_id") == val]
-            if params and "user_id" in params:
-                val = params["user_id"].split(".")[1]
-                return [x for x in MOCK_DB[table] if x.get("user_id") == val]
-            return MOCK_DB[table]
+            # Simple mock filtering
+            result = MOCK_DB[table]
+            if params:
+                if "admin_id" in params:
+                    val = params["admin_id"].split(".")[1]
+                    result = [x for x in result if x.get("admin_id") == val]
+                if "user_id" in params:
+                    val = params["user_id"].split(".")[1]
+                    result = [x for x in result if x.get("user_id") == val]
+                if "email" in params:
+                    val = params["email"].split(".")[1]
+                    result = [x for x in result if x.get("email") == val]
+                if "wish_name" in params:
+                    val = params["wish_name"].split(".")[1]
+                    result = [x for x in result if x.get("wish_name") == val]
+            return result
             
         elif method == "POST":
             # Very basic UUID mock for new rows without ID

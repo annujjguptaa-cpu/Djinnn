@@ -11,8 +11,26 @@ Djinn is an intelligent agent that lets you upload images, generate AI-crafted c
 ### 🪄 Social AI Posting
 - **Omni-Platform AI Agent** — Upload images, auto-generate captions, preview your post exactly as it will look on LinkedIn or X (Twitter).
 - **Gemma 4 Local First** — Runs locally with Ollama (port 11434). Gracefully falls back to Claude 3.5 Sonnet if Gemma 4 is unavailable.
-- **15 Djinn Topics** — Access customized AI workflows spanning across Presence, Opportunity, Growth, Spotlight, Oracle, Scholar, and more.
-- **Waitlist System** — For unlaunched "Coming Soon" features, users can add themselves to a Supabase-backed waitlist directly from the UI.
+
+### 🌟 The 15 Wishes (Topics)
+Djinn has expanded its capabilities into 15 specific "Wishes" (Topics). Each Wish contains a variety of sub-workflows.
+1. **The Presence Wish** — Build your voice. Own your network. (Includes LinkedIn/X Auto Post, Auto Connect, Personal Brand Building, Engagement Automations).
+2. **The Opportunity Wish** — Find your path. Land your dream. (Auto Apply to Jobs/Internships, Resume Optimizer, Interview Scheduler).
+3. **The Growth Wish** — Close deals. Build empires. (VC Research, Cold Email Campaigns, Supplier Discovery, CRM Updates).
+4. **The Spotlight Wish** — Publish everywhere. Be seen by all. (Multi-Platform Post, SEO Monitoring, Product Launch Automation).
+5. **The Oracle Wish** — Know everything. Before anyone else. (Academic Research, Patent Search, Competitive Intelligence).
+6. **The Scholar Wish** — Learn smarter. Submit faster. (Scholarship Apps, Assignment Submission, Exam Registration).
+7. **The Builder Wish** — Ship code. Own the internet. (Personal GitHub Summon, Governance B2B HQ, Bug Report Submission, Cloud Cost Monitor).
+8. **The Merchant Wish** — Sell more. Manage less. (Multi-Platform Listing, Price Drop Alerts, Bulk Order Automation).
+9. **The Guardian Wish** — Protect what matters. Stay compliant. (Contract Risk Analysis, GST Filing, Trademark Search).
+10. **The Healer Wish** — Your health. Handled. (Doctor Appointments, Prescription Refills, Medical Record Organiser).
+11. **The Foundation Wish** — Find your space. Own your ground. (Property Listing Monitor, Rent Agreement Comparison).
+12. **The People Wish** — Build teams. Retain talent. (Recruitment Pipeline, Employee Onboarding, Performance Reviews).
+13. **The Wanderer Wish** — Go anywhere. Effortlessly. (Flight Price Monitor, Travel Itinerary Builder, Visa Apps).
+14. **The Citizen Wish** — Navigate systems. Claim what's yours. (Gov Tender Monitor, RTI Filing, Subsidy Apps).
+15. **The Life Wish** — Handle everything else. (Subscription Manager, Auto Raise Complaints, Bill Payment Reminders).
+
+- **Waitlist System** — For unlaunched "Coming Soon" features in the above 15 topics, users can add themselves to a Supabase-backed waitlist directly from the UI.
 - **Interactive Wish Preview** — Open your Magic Link to see the post preview. Hit **Edit Wish** to rewrite the caption, swap images, or regenerate AI content before publishing.
 - **Dual Platform** — LinkedIn (Posts API v2 + UGC fallback) and X (Twitter) OAuth 2.0.
 

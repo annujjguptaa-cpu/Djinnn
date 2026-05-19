@@ -89,6 +89,29 @@
       "platform": "linkedin",
       "status": "created",
       "created_at": "2026-05-11T19:27:08.867627"
+    },
+    "post_b3a18f8b84": {
+      "type": "post",
+      "caption": "AI content generation unavailable. Please check your API keys.",
+      "has_images": true,
+      "image_paths": [
+        "78bd584e_coffee 1.png",
+        "2253aa2d_blue clouds.png"
+      ],
+      "platform": "linkedin",
+      "status": "created",
+      "created_at": "2026-05-17T21:51:22.272710"
+    },
+    "post_4a9fd13b3b": {
+      "type": "post",
+      "caption": "AI content generation unavailable. Please check your API keys.",
+      "has_images": true,
+      "image_paths": [
+        "6917d457_Chirag.png"
+      ],
+      "platform": "linkedin",
+      "status": "created",
+      "created_at": "2026-05-17T23:28:09.595628"
     }
   },
   "connect": {

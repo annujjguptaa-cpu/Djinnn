@@ -44,13 +44,13 @@ const WishHistory = () => {
   }
 
   const filteredPosts = posts.filter(p => 
-    p.caption?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    p.platform?.toLowerCase().includes(searchQuery.toLowerCase())
+    (p.caption || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (p.platform || '').toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const filteredConns = connections.filter(c => 
-    c.role?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    c.location?.toLowerCase().includes(searchQuery.toLowerCase())
+    (c.role || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (c.location || '').toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   return (

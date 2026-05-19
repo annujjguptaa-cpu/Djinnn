@@ -52,6 +52,8 @@ backend/uploads/*
 # Block generic data JSONs
 data/*.json
 storage/*.json
+backend/wishes.json
+backend/db_mock.json
 .cache/
 
 # Logs

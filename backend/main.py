@@ -5,6 +5,11 @@ from routers import post, connect, auth, x_auth, github, workflow
 import gemma_brain
 from db_supabase import SupabaseDB
 from pydantic import BaseModel
+from fastapi import BackgroundTasks
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), 'services'))
+from email_service import send_waitlist_email
 
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
@@ -26,11 +31,16 @@ class WaitlistRequest(BaseModel):
     topic_name: str
 
 @app.post("/api/waitlist")
-async def add_to_waitlist(req: WaitlistRequest):
+async def add_to_waitlist(req: WaitlistRequest, background_tasks: BackgroundTasks):
     existing = await SupabaseDB.check_waitlist_entry(req.email, req.wish_name)
     if existing:
         return {"status": "already registered"}
+    
     await SupabaseDB.save_waitlist_entry(req.email, req.wish_name, req.topic_name)
+    
+    # Send email in background
+    background_tasks.add_task(send_waitlist_email, req.email, req.wish_name, req.topic_name)
+    
     return {"status": "success"}
 
 @app.exception_handler(Exception)

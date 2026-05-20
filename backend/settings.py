@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     # AI Engine
     ANTHROPIC_API_KEY: str = ""
     
+    # Email Settings
+    SMTP_EMAIL: str = ""
+    SMTP_PASSWORD: str = ""
+    
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 settings = Settings()

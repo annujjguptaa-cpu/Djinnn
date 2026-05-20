@@ -75,3 +75,72 @@ def send_waitlist_email(to_email: str, wish_name: str, topic_name: str):
     except Exception as e:
         print(f"Failed to send email to {to_email}: {str(e)}")
 
+
+def send_access_request_email(to_email: str, wish_name: str):
+    """
+    Sends an HTML confirmation email to the user requesting access to a wish.
+    """
+    smtp_email = settings.SMTP_EMAIL
+    smtp_password = settings.SMTP_PASSWORD
+
+    if not smtp_email or not smtp_password:
+        print("Warning: SMTP_EMAIL or SMTP_PASSWORD not set in environment variables. Email will not be sent.")
+        return
+
+    # Create the email message
+    msg = MIMEMultipart("alternative")
+    msg['Subject'] = f"Your Djinn Access Request — {wish_name}"
+    msg['From'] = f"Djinn Platform <{smtp_email}>"
+    msg['To'] = to_email
+
+    # Plain text
+    text = f"""
+    Hello!
+
+    Your request for access to {wish_name} has been received. 
+
+    Our team is currently reviewing your request. We review all requests within 48 hours.
+
+    Best,
+    The Djinn Team
+    """
+
+    # HTML
+    html = f"""
+    <html>
+      <body style="background-color: #0a0a0f; color: #ffffff; font-family: sans-serif; padding: 40px 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; overflow: hidden; text-align: center;">
+            <div style="padding: 40px 20px;">
+                <div style="font-size: 48px; margin-bottom: 20px;">🪔</div>
+                <h1 style="color: #ffffff; font-size: 24px; margin-bottom: 10px;">Access Request Received</h1>
+                <p style="color: #a1a1aa; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+                    We have successfully received your request for access to <strong>{wish_name}</strong>.
+                </p>
+                <p style="color: #a1a1aa; font-size: 14px; line-height: 1.6; padding: 0 20px; margin-bottom: 30px;">
+                    Our team reviews all requests within 48 hours. You will receive a confirmation at this email address once approved.
+                </p>
+            </div>
+            <div style="background-color: rgba(0,0,0,0.2); padding: 20px; font-size: 12px; color: #71717a;">
+                The Djinn Team
+            </div>
+        </div>
+      </body>
+    </html>
+    """
+
+    part1 = MIMEText(text, 'plain')
+    part2 = MIMEText(html, 'html')
+
+    msg.attach(part1)
+    msg.attach(part2)
+
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.login(smtp_email, smtp_password)
+        server.sendmail(smtp_email, to_email, msg.as_string())
+        server.quit()
+        print(f"Successfully sent access request email to {to_email}")
+    except Exception as e:
+        print(f"Failed to send access request email to {to_email}: {str(e)}")
+
+

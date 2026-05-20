@@ -95,7 +95,7 @@ export default function Home() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-djinn-purple/10 border border-djinn-purple/20 text-djinn-purple-light text-sm font-medium mb-6"
           >
             <Sparkles size={14} />
-            Omni-Platform Social Automation
+            Multi-Platform AI Action Agent
           </motion.div>
 
           <motion.h1
@@ -115,8 +115,7 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="text-djinn-subtext text-xl max-w-2xl mx-auto leading-relaxed"
           >
-            Your AI genie for LinkedIn & X — automate posts, grow your network, and
-            share magic links that work for you while you sleep.
+            Your multi-platform AI Action Agent. Automate social content, research and outreach to investors, re-engage sales leads, search scholarships, and auto-apply to jobs—all executing autonomously in the background.
           </motion.p>
 
           {/* Stats row */}
@@ -126,7 +125,7 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.5 }}
             className="flex items-center justify-center gap-10 mt-10"
           >
-            {[['10x', 'Faster Posts'], ['500+', 'Connections/Week'], ['100%', 'AI-Powered']].map(([num, label]) => (
+            {[['10x', 'Execution Speed'], ['24/7', 'Autonomous Action'], ['100%', 'AI-Powered']].map(([num, label]) => (
               <div key={label} className="text-center">
                 <div className="text-2xl font-bold text-gradient">{num}</div>
                 <div className="text-xs text-djinn-subtext mt-0.5">{label}</div>

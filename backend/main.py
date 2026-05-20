@@ -88,6 +88,11 @@ app.include_router(x_auth.router, prefix="/api")
 app.include_router(workflow.router, prefix="/api")
 app.include_router(gemma_brain.router, prefix="/api")
 
+from routers import opportunity, growth, access_requests
+app.include_router(opportunity.router)
+app.include_router(growth.router)
+app.include_router(access_requests.router)
+
 # ─── Static Files (uploaded images) ──────────────────────────────────────────
 import os
 os.makedirs("uploads", exist_ok=True)

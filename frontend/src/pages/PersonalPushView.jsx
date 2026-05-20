@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import axios from 'axios'
 import PageWrapper from '../components/PageWrapper'
 import { FolderUp, Sparkles, ShieldCheck, Rocket, Loader2, AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, FileText, Layout } from 'lucide-react'
+import DiscoverMoreWishes from '../components/DiscoverMoreWishes'
 
 const GitHub = ({ className }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -245,6 +246,7 @@ const PersonalPushView = ({ onStepChange }) => {
                     </motion.div>
                 </div>
             )}
+            {step === 3 && <DiscoverMoreWishes currentWish="github-push" />}
             </div>
         </PageWrapper>
     )

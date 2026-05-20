@@ -840,7 +840,6 @@ export default function WishPage() {
             />
           </motion.div>
         )}
-        )}
       </AnimatePresence>
       )}
     </div>

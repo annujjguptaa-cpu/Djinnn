@@ -23,7 +23,12 @@ MOCK_DB = {
     "github_executions": [],
     "github_members": [],
     "github_links": [],
-    "waitlist": []
+    "waitlist": [],
+    "opportunities": [],
+    "applications": [],
+    "campaigns": [],
+    "campaign_contacts": [],
+    "access_requests": []
 }
 
 class SupabaseDB:
@@ -36,6 +41,15 @@ class SupabaseDB:
             # Simple mock filtering
             result = MOCK_DB[table]
             if params:
+                if "id" in params:
+                    val = params["id"].split(".")[1]
+                    result = [x for x in result if x.get("id") == val]
+                if "opportunity_id" in params:
+                    val = params["opportunity_id"].split(".")[1]
+                    result = [x for x in result if x.get("opportunity_id") == val]
+                if "campaign_id" in params:
+                    val = params["campaign_id"].split(".")[1]
+                    result = [x for x in result if x.get("campaign_id") == val]
                 if "admin_id" in params:
                     val = params["admin_id"].split(".")[1]
                     result = [x for x in result if x.get("admin_id") == val]
@@ -208,3 +222,51 @@ class SupabaseDB:
     async def check_waitlist_entry(email: str, wish_name: str):
         data = await SupabaseDB._request("GET", "waitlist", params={"email": f"eq.{email}", "wish_name": f"eq.{wish_name}"})
         return data[0] if data else None
+
+    # New Methods for Opportunity & Campaign Expansion
+    @staticmethod
+    async def save_opportunity(opp_data: dict):
+        return await SupabaseDB._request("POST", "opportunities", data=opp_data)
+
+    @staticmethod
+    async def get_opportunity(opp_id: str):
+        data = await SupabaseDB._request("GET", "opportunities", params={"id": f"eq.{opp_id}"})
+        return data[0] if data else None
+
+    @staticmethod
+    async def get_opportunities(user_id: str):
+        return await SupabaseDB._request("GET", "opportunities", params={"user_id": f"eq.{user_id}"})
+
+    @staticmethod
+    async def save_application(app_data: dict):
+        return await SupabaseDB._request("POST", "applications", data=app_data)
+
+    @staticmethod
+    async def get_applications(opp_id: str):
+        return await SupabaseDB._request("GET", "applications", params={"opportunity_id": f"eq.{opp_id}"})
+
+    @staticmethod
+    async def save_campaign(camp_data: dict):
+        return await SupabaseDB._request("POST", "campaigns", data=camp_data)
+
+    @staticmethod
+    async def get_campaign(camp_id: str):
+        data = await SupabaseDB._request("GET", "campaigns", params={"id": f"eq.{camp_id}"})
+        return data[0] if data else None
+
+    @staticmethod
+    async def get_campaigns(user_id: str):
+        return await SupabaseDB._request("GET", "campaigns", params={"user_id": f"eq.{user_id}"})
+
+    @staticmethod
+    async def save_campaign_contact(contact_data: dict):
+        return await SupabaseDB._request("POST", "campaign_contacts", data=contact_data)
+
+    @staticmethod
+    async def get_campaign_contacts(camp_id: str):
+        return await SupabaseDB._request("GET", "campaign_contacts", params={"campaign_id": f"eq.{camp_id}"})
+
+    @staticmethod
+    async def save_access_request(request_data: dict):
+        return await SupabaseDB._request("POST", "access_requests", data=request_data)
+

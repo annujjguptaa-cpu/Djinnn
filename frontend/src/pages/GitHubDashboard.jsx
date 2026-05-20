@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import axios from 'axios'
 import { API_BASE } from '../config'
 import PageWrapper from '../components/PageWrapper'
+import DiscoverMoreWishes from '../components/DiscoverMoreWishes'
 import { 
   Users, Activity, ExternalLink, Plus, CheckCircle, Clock, 
   ShieldAlert, UserPlus, MoreVertical, Link as LinkIcon, Zap,
@@ -344,6 +345,7 @@ export default function GitHubDashboard() {
             </motion.div>
           )}
         </AnimatePresence>
+        <DiscoverMoreWishes currentWish="github-b2b" />
       </div>
     </PageWrapper>
   )

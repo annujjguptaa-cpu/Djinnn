@@ -4,6 +4,8 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     GEMINI_API_KEY: str = ""
     GOOGLE_CLIENT_ID: str = ""
+    GROQ_API_KEY: str = ""
+    GOOGLE_API_KEY: str = ""
     
     LINKEDIN_CLIENT_ID: str = ""
     LINKEDIN_CLIENT_SECRET: str = ""

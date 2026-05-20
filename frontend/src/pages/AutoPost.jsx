@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Upload, Image, Sparkles, Link2, Copy, Check, X, ThumbsUp, MessageSquare, Repeat2, Send } from 'lucide-react'
 import PageWrapper from '../components/PageWrapper'
 import SocialPreview from '../components/SocialPreview'
+import DiscoverMoreWishes from '../components/DiscoverMoreWishes'
 import axios from 'axios'
 import { API_BASE } from '../config'
 
@@ -462,6 +463,7 @@ export default function AutoPost() {
             )}
           </motion.div>
         </div>
+        {wishLink && <DiscoverMoreWishes currentWish="linkedin-post" />}
       </div>
     </PageWrapper>
   )

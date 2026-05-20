@@ -12,6 +12,12 @@ import WhiteLabelPortal from './pages/WhiteLabelPortal'
 import WishHistory from './pages/WishHistory'
 import Navbar from './components/Navbar'
 import Topic from './pages/Topic'
+import JobApplication from './pages/JobApplication'
+import NaukriApplication from './pages/NaukriApplication'
+import ScholarshipApplication from './pages/ScholarshipApplication'
+import VCOutreach from './pages/VCOutreach'
+import ColdEmailCampaign from './pages/ColdEmailCampaign'
+import SalesFollowUp from './pages/SalesFollowUp'
 
 import { useState } from 'react'
 import SplashScreen from './components/SplashScreen'
@@ -43,6 +49,12 @@ function App() {
                 <Route path="/github/push/:workflowId" element={<RepositoryPush />} />
                 <Route path="/share/:linkId" element={<WhiteLabelPortal />} />
                 <Route path="/history" element={<WishHistory />} />
+                <Route path="/opportunity/jobs" element={<JobApplication />} />
+                <Route path="/opportunity/naukri" element={<NaukriApplication />} />
+                <Route path="/opportunity/scholarships" element={<ScholarshipApplication />} />
+                <Route path="/growth/vc-outreach" element={<VCOutreach />} />
+                <Route path="/growth/cold-email" element={<ColdEmailCampaign />} />
+                <Route path="/growth/follow-up" element={<SalesFollowUp />} />
               </Routes>
             </div>
           )}

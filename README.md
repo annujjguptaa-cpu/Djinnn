@@ -30,19 +30,30 @@ Djinn has expanded its capabilities into 15 specific "Wishes" (Topics). Each Wis
 14. **The Citizen Wish** — Navigate systems. Claim what's yours. (Gov Tender Monitor, RTI Filing, Subsidy Apps).
 15. **The Life Wish** — Handle everything else. (Subscription Manager, Auto Raise Complaints, Bill Payment Reminders).
 
-- **Waitlist System** — For unlaunched "Coming Soon" features in the above 15 topics, users can add themselves to a Supabase-backed waitlist directly from the UI.
-- **Interactive Wish Preview** — Open your Magic Link to see the post preview. Hit **Edit Wish** to rewrite the caption, swap images, or regenerate AI content before publishing.
-- **Dual Platform** — LinkedIn (Posts API v2 + UGC fallback) and X (Twitter) OAuth 2.0.
+---
 
-### 🐙 GitHub Integration
-- **GitHub (Personal)** — One-click push wizard for individual developers
-- **GitHub B2B** — Full Governance HQ: Team Network, member management, white-label portals, workflow blueprints, and compliance analytics
-- **Security Guardian** — Scans every push for leaked API keys, secrets, and tokens before they land on GitHub
+## 🚀 Recent Enhancements
 
-### ⚙️ Platform Architecture
-- **Real-time AI Streaming** — Captions stream word-by-word as Gemini/OpenAI generates them
-- **Persistent Storage** — Supabase with in-memory MOCK_DB fallback for local dev
-- **Static File Serving** — Uploaded images exposed at `/uploads/` for preview rendering
+### 🔮 Discover More Wishes & Navigation
+To drive platform-wide discovery, we have introduced the reusable **Discover More Wishes** panel.
+- **Recommendations Engine:** Shows curated, context-aware suggestions tailored to the active wish type (e.g., career suggestions for Job Seekers, B2B/outreach tools for Growth builders).
+- **All Wishes Collapsible Directory:** Renders a nested, browseable list of all wishes across the 15 categories, showing active and upcoming/locked features.
+- **Rollout Coverage:** Integrated at the bottom of all 10 primary pages:
+  - LinkedIn Auto Post (`AutoPost.jsx`)
+  - LinkedIn Auto Connect (`AutoConnect.jsx`)
+  - Personal GitHub Summon (`PersonalPushView.jsx`)
+  - Governance B2B HQ (`GitHubDashboard.jsx`)
+  - Auto Apply LinkedIn Jobs (`JobApplication.jsx`)
+  - Auto Apply Naukri Jobs (`NaukriApplication.jsx`)
+  - Scholarship Application Automation (`ScholarshipApplication.jsx`)
+  - VC Research and Outreach (`VCOutreach.jsx`)
+  - Cold Email Campaign (`ColdEmailCampaign.jsx`)
+  - Sales Lead Follow Up (`SalesFollowUp.jsx`)
+
+### 🔒 Locked Features & Access Request Modal
+- Allows users to preview locked or upcoming features.
+- Clicking **Request Access** opens a beautiful, animated modal where users enter their name, email, organization, and use case details.
+- Access requests are saved securely in the backend Database and trigger real-time SMTP Email Alerts directly to the administrator.
 
 ---
 
@@ -53,53 +64,13 @@ Djinn has expanded its capabilities into 15 specific "Wishes" (Topics). Each Wis
 - **Tailwind CSS** — Utility-first styling with custom Djinn design tokens
 - **Framer Motion** — Smooth page transitions and micro-animations
 - **Axios** — HTTP client for API calls
-- **Lucide React** — Icon library
+- **TypeScript** — Secure, typed components and state management
 
 ### Backend
 - **FastAPI** — Modern async Python web framework
-- **HTTPX** — Async HTTP client for LinkedIn/X/GitHub APIs
-- **Local AI** — Ollama Integration (Gemma 4 model)
-- **Cloud AI Fallback** — Claude 3.5 Sonnet & OpenAI fallback engines
-- **Pydantic** — Request/response data validation
-- **Supabase** — Cloud persistence layer
-- **PyGitHub** — GitHub API v3
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.10+
-- Node.js 18+
-- At least one AI API key (Gemini or OpenAI)
-- OAuth credentials for LinkedIn and/or X
-
-### 1. Clone & Install
-
-```bash
-git clone https://github.com/annujjguptaa-cpu/Djinn---AI-Action-Agent.git
-cd Djinn
-```
-
-### 2. Backend Setup
-
-```bash
-cd backend
-pip install -r requirements.txt
-cp .env.example .env   # Fill in your keys
-python -m uvicorn main:app --reload
-# → http://127.0.0.1:8000
-# → API Docs: http://127.0.0.1:8000/docs
-```
-
-### 3. Frontend Setup
-
-```bash
-cd frontend
-npm install
-npm run dev
-# → http://localhost:5173
-```
+- **Supabase / PostgreSQL** — Persistence layer for user logs, wishes, and access requests
+- **SMTP Service** — Automatic email notifications for admin alerts
+- **Ollama / Gemma 4 / Claude 3.5 Sonnet / Gemini** — Multi-tiered LLM orchestration engines
 
 ---
 
@@ -111,19 +82,24 @@ Djinn/
 │   ├── main.py                  # FastAPI app + static file serving
 │   ├── models.py                # Pydantic request/response models
 │   ├── settings.py              # Environment config
-│   ├── db.py                    # In-memory wish store
 │   ├── db_supabase.py           # Supabase persistence layer
+│   ├── migrations/
+│   │   ├── access_requests.sql  # Access requests table schema
+│   │   └── expansion.sql        # Core updates and schemas
 │   ├── routers/
 │   │   ├── post.py              # AI caption engine + LinkedIn/X publish
 │   │   ├── connect.py           # Auto-connect workflow
 │   │   ├── auth.py              # LinkedIn OAuth
 │   │   ├── x_auth.py            # X (Twitter) OAuth
 │   │   ├── github.py            # GitHub OAuth + push router
-│   │   └── workflow.py          # B2B workflow + white-label portals
+│   │   ├── workflow.py          # B2B workflow + white-label portals
+│   │   ├── access_requests.py   # Access request submissions
+│   │   ├── opportunity.py       # Job application automation routes
+│   │   └── growth.py            # VC outreach & email campaign routes
 │   ├── services/
 │   │   ├── guardian.py          # Secret scanner (pre-push security)
 │   │   ├── ai_engine.py         # LLM orchestrator
-│   │   ├── ai_readme.py         # AI README generator
+│   │   ├── email_service.py     # Admin SMTP notifications
 │   │   └── github_service.py    # GitHub API wrapper
 │   └── uploads/                 # Served at /uploads/* (static)
 │
@@ -136,34 +112,26 @@ Djinn/
         │   ├── AutoConnect.jsx       # LinkedIn auto-connect
         │   ├── GitHubDashboard.jsx   # B2B Governance HQ
         │   ├── PersonalPushView.jsx  # GitHub Personal Push Wizard
-        │   ├── WhiteLabelPortal.jsx  # External contributor portal
-        │   └── WorkflowBuilder.jsx   # B2B Blueprint creator
-        └── components/
-            ├── SocialPreview.jsx     # Live LinkedIn/X post preview
-            ├── Navbar.jsx            # Navigation
-            └── PageWrapper.jsx       # Layout wrapper
+        │   ├── JobApplication.jsx    # LinkedIn Job auto-applier
+        │   ├── NaukriApplication.jsx  # Naukri Job auto-applier
+        │   ├── ScholarshipApplication.jsx # Scholarship essay applier
+        │   ├── VCOutreach.jsx        # VC researcher and pitcher
+        │   ├── ColdEmailCampaign.jsx # Bulk cold emailing sequences
+        │   └── SalesFollowUp.jsx     # CRM re-engagement campaigns
+        ├── components/
+        │   ├── DiscoverMoreWishes.tsx # Curated suggestions & all wishes directory
+        │   ├── RequestAccessModal.tsx # Form to request entry to locked tools
+        │   ├── SocialPreview.jsx     # Live LinkedIn/X post preview
+        │   └── Navbar.jsx            # Navigation
+        └── data/
+            └── allWishes.ts          # Comprehensive lookup directory configuration
 ```
-
----
-
-## ✨ Pages & Routes
-
-| Page | Route | Description |
-|------|-------|-------------|
-| **Home** | `/` | Platform overview and feature cards |
-| **Auto Post** | `/auto-post` | Upload images → AI caption → Magic Link |
-| **Wish Preview** | `/wish/:id` | Interactive preview — edit, regenerate, grant |
-| **Auto Connect** | `/auto-connect` | LinkedIn connection automation |
-| **GitHub** | `/github-personal` | Personal push wizard |
-| **GitHub B2B** | `/github-dashboard` | Team governance HQ |
-| **Workflow Builder** | `/workflow-builder` | B2B blueprint creator |
-| **White-Label Portal** | `/share/:id` | External contributor submission |
 
 ---
 
 ## 🔌 API Endpoints
 
-### Social Posts
+### Social Posts & Actions
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `POST` | `/api/post/upload` | Upload images (returns filenames) |
@@ -172,56 +140,27 @@ Djinn/
 | `GET` | `/api/post/{wish_id}` | Fetch wish data |
 | `PUT` | `/api/post/{wish_id}` | Update caption/images before publishing |
 | `POST` | `/api/post/execute/{wish_id}` | Publish to LinkedIn or X |
-| `GET` | `/uploads/{filename}` | Serve uploaded image files |
 
-### Authentication
+### Access Requests & Waitlist
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/api/auth/linkedin/login` | LinkedIn OAuth redirect |
-| `GET` | `/api/auth/linkedin/callback` | LinkedIn OAuth callback |
-| `GET` | `/api/auth/x/login` | X OAuth redirect |
-| `GET` | `/api/auth/x/callback` | X OAuth callback |
-| `GET` | `/api/auth/github/login` | GitHub OAuth redirect |
-| `GET` | `/api/auth/github/callback` | GitHub OAuth callback |
+| `POST` | `/api/access-request` | Submit name/email for features & trigger admin SMTP notification |
 
----
+### Opportunity automation
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/opportunity/apply-jobs` | Automatically apply to LinkedIn Jobs |
+| `POST` | `/api/opportunity/apply-naukri` | Automatically apply to Naukri Jobs |
+| `POST` | `/api/opportunity/apply-scholarships` | Apply to international scholarship grants |
+| `GET` | `/api/opportunity/status/{wish_id}` | Poll current application status |
 
-## 🎯 The Wish Workflow
-
-```
-1. Open Auto Post
-2. Choose platform (LinkedIn or X)
-3. Enter context (optional — "My new product launch")
-4. Upload images (optional — up to 6)
-5. Djinn streams an AI-written caption
-6. Click "Summon Your Djinn" → get a Magic Link
-7. Open the Magic Link to see the live preview
-8. Hit "✏️ Edit Wish" to change caption, swap images, or regenerate
-9. Click "Grant" → OAuth login → post published instantly
-```
-
----
-
-## 🔐 OAuth Setup
-
-### LinkedIn
-1. Go to [developer.linkedin.com](https://developer.linkedin.com)
-2. Create an app, navigate to **Auth** → **OAuth 2.0 Settings**
-3. Add redirect URI: `http://localhost:8000/api/auth/linkedin/callback`
-4. Required scopes: `openid`, `profile`, `email`, `w_member_social`
-5. Copy Client ID and Secret to `.env`
-
-### X (Twitter)
-1. Go to [developer.twitter.com](https://developer.twitter.com)
-2. Create an app with **OAuth 2.0** enabled (PKCE)
-3. Callback URL: `http://127.0.0.1:8000/api/auth/x/callback`
-4. Copy Client ID and Secret to `.env`
-
-### GitHub
-1. Go to [github.com/settings/developers](https://github.com/settings/developers)
-2. Create an OAuth App
-3. Callback URL: `http://localhost:8000/api/auth/github/callback`
-4. Copy Client ID and Secret to `.env`
+### Growth automation
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/growth/vc-outreach` | Research VCs & write custom pitch letters |
+| `POST` | `/api/growth/cold-email` | Deploy cold outreach campaigns |
+| `POST` | `/api/growth/follow-up` | Trigger CRM re-engagement sequences |
+| `GET` | `/api/growth/status/{wish_id}` | Poll current outreach campaign status |
 
 ---
 
@@ -250,6 +189,12 @@ GITHUB_REDIRECT_URI=http://localhost:8000/api/auth/github/callback
 # Supabase (optional — uses in-memory DB if not set)
 SUPABASE_URL=your_supabase_url
 SUPABASE_KEY=your_supabase_anon_key
+
+# SMTP Alerts Configuration
+SMTP_EMAIL=your-sender@gmail.com
+SMTP_PASSWORD=your-app-password
+SMTP_PORT=587
+SMTP_SERVER=smtp.gmail.com
 
 # App
 APP_ENV=development

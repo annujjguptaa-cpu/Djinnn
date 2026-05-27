@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Users, MapPin, MessageSquare, Sparkles, Link2, Copy, Check, ChevronRight } from 'lucide-react'
+import { Users, MapPin, MessageSquare, Sparkles, Link2, Copy, Check, ChevronRight, ArrowLeft } from 'lucide-react'
 import PageWrapper from '../components/PageWrapper'
 import axios from 'axios'
-
-
+import { useNavigate } from 'react-router-dom'
 import { API_BASE } from '../config'
 
 const InputField = ({ id, label, placeholder, icon: Icon, value, onChange, type = 'text' }) => (
@@ -89,6 +88,7 @@ const PreviewCard = ({ role, location, message }) => (
 )
 
 export default function AutoConnect() {
+  const navigate = useNavigate()
   const [role, setRole] = useState('')
   const [location, setLocation] = useState('')
   const [message, setMessage] = useState('')
@@ -121,6 +121,12 @@ export default function AutoConnect() {
   return (
     <PageWrapper>
       <div className="max-w-6xl mx-auto px-6 py-12">
+        <button
+          onClick={() => navigate('/topic/presence')}
+          className="flex items-center gap-2 text-djinn-subtext hover:text-white mb-8 transition-colors text-sm font-medium"
+        >
+          <ArrowLeft size={16} /> Back to Presence Wish
+        </button>
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-djinn-purple/10 border border-djinn-purple/20 text-djinn-purple-light text-xs font-medium mb-4">

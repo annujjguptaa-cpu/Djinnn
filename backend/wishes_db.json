@@ -134,6 +134,17 @@
       "platform": "linkedin",
       "status": "created",
       "created_at": "2026-05-27T19:15:46.178847"
+    },
+    "post_c0ec14de6c": {
+      "type": "post",
+      "caption": "Checking Features.",
+      "has_images": true,
+      "image_paths": [
+        "77a75c7b_Gemini_Generated_Image_wg91yqwg91yqwg91.png"
+      ],
+      "platform": "linkedin",
+      "status": "created",
+      "created_at": "2026-05-27T19:35:24.416775"
     }
   },
   "connect": {

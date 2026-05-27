@@ -47,7 +47,7 @@ function App() {
 
   return (
     <>
-      {loading && !showSplash && (
+      {loading && !showSplash && !isWishPage && (
         <SkeletonLoader 
           isExiting={isExiting} 
           onTransitionEnd={() => setLoading(false)} 

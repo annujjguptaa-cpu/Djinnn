@@ -1,12 +1,14 @@
 import { useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, Image, Sparkles, Link2, Copy, Check, X, ThumbsUp, MessageSquare, Repeat2, Send } from 'lucide-react'
+import { Upload, Image, Sparkles, Link2, Copy, Check, X, ThumbsUp, MessageSquare, Repeat2, Send, ArrowLeft } from 'lucide-react'
 import PageWrapper from '../components/PageWrapper'
 import SocialPreview from '../components/SocialPreview'
 import axios from 'axios'
 import { API_BASE } from '../config'
+import { useNavigate } from 'react-router-dom'
 
 export default function AutoPost() {
+  const navigate = useNavigate()
   const [images, setImages] = useState([])
   const [imagePreviews, setImagePreviews] = useState([])
   const [imagePaths, setImagePaths] = useState([])
@@ -198,6 +200,12 @@ export default function AutoPost() {
   return (
     <PageWrapper>
       <div className="max-w-6xl mx-auto px-6 py-12">
+        <button
+          onClick={() => navigate('/topic/presence')}
+          className="flex items-center gap-2 text-djinn-subtext hover:text-white mb-8 transition-colors text-sm font-medium"
+        >
+          <ArrowLeft size={16} /> Back to Presence Wish
+        </button>
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-djinn-purple/10 border border-djinn-purple/20 text-djinn-purple-light text-xs font-medium mb-4">

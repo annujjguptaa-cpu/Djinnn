@@ -8,14 +8,13 @@
  * <DiscoverMoreWishes currentWish="linkedin-post" />
  */
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Wand2, Sparkles, ChevronDown, ChevronUp } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { ALL_WISHES } from '../data/allWishes'
 import type { Wish } from '../data/allWishes'
 import RequestAccessModal from './RequestAccessModal'
-import DiscoverMoreSkeleton from './skeletons/DiscoverMoreSkeleton'
 
 interface DiscoverMoreWishesProps {
   currentWish: string
@@ -25,17 +24,10 @@ export default function DiscoverMoreWishes({ currentWish }: DiscoverMoreWishesPr
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<'recommended' | 'all'>('recommended')
   const [expandedTopics, setExpandedTopics] = useState<Record<string, boolean>>({})
-  const [isInitializing, setIsInitializing] = useState(true)
   
   // Request Access Modal State
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedWishForAccess, setSelectedWishForAccess] = useState<Wish | null>(null)
-
-  // Show skeleton for max 600ms on mount — prevents pop-in flash since allWishes is local data
-  useEffect(() => {
-    const timer = setTimeout(() => setIsInitializing(false), 600)
-    return () => clearTimeout(timer)
-  }, [])
 
   // Map shorthand recommendation IDs to their actual IDs in ALL_WISHES
   const resolveWishId = (id: string) => {
@@ -121,12 +113,8 @@ export default function DiscoverMoreWishes({ currentWish }: DiscoverMoreWishesPr
       transition={{ duration: 0.6 }}
       className="mt-16 pt-16 border-t border-white/10 w-full max-w-7xl mx-auto px-4 md:px-8 pb-16"
     >
-      {isInitializing ? (
-        <DiscoverMoreSkeleton />
-      ) : (
-        <>
-        {/* Header Section */}
-        <div className="flex flex-col items-center text-center mb-10">
+      {/* Header Section */}
+      <div className="flex flex-col items-center text-center mb-10">
         <div className="w-12 h-12 bg-djinn-purple/20 border border-djinn-purple/30 rounded-full flex items-center justify-center mb-4 shadow-purple-glow">
           <Wand2 className="text-djinn-purple-light" size={24} />
         </div>
@@ -318,8 +306,6 @@ export default function DiscoverMoreWishes({ currentWish }: DiscoverMoreWishesPr
           wishName={selectedWishForAccess.name}
           wishTopic={getTopicTitle(selectedWishForAccess.topic)}
         />
-      )}
-      </>
       )}
     </motion.div>
   )

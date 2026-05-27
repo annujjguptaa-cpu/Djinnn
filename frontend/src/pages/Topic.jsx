@@ -1,11 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ChevronLeft, Sparkles } from 'lucide-react'
 import PageWrapper from '../components/PageWrapper'
 import WaitlistModal from '../components/WaitlistModal'
 import { topicsData } from '../data/topics'
-import TopicPageSkeleton from '../components/skeletons/TopicPageSkeleton'
 
 const SubTopicCard = ({ card, onClick, delay }) => (
   <motion.div
@@ -66,21 +65,7 @@ export default function Topic() {
   const { topicId } = useParams()
   const navigate = useNavigate()
   const [waitlistTopic, setWaitlistTopic] = useState(null)
-  const [showSkeleton, setShowSkeleton] = useState(true)
-  const [cardsVisible, setCardsVisible] = useState(false)
-
-  // Show skeleton for 800ms minimum to prevent jarring pop-in of 15 cards simultaneously
-  useEffect(() => {
-    setShowSkeleton(true)
-    setCardsVisible(false)
-    const timer = setTimeout(() => {
-      setShowSkeleton(false)
-      // Cards start staggered reveal immediately after skeleton fades
-      setTimeout(() => setCardsVisible(true), 50)
-    }, 800)
-    return () => clearTimeout(timer)
-  }, [topicId])
-
+  
   const topic = topicsData.find(t => t.id === topicId)
   
   if (!topic) {
@@ -102,22 +87,6 @@ export default function Topic() {
 
   const Icon = topic.icon
 
-  // Show skeleton while loading
-  if (showSkeleton) {
-    return (
-      <PageWrapper>
-        <div
-          style={{
-            opacity: showSkeleton ? 1 : 0,
-            transition: 'opacity 300ms ease-out',
-          }}
-        >
-          <TopicPageSkeleton />
-        </div>
-      </PageWrapper>
-    )
-  }
-
   return (
     <PageWrapper>
       <div className="max-w-7xl mx-auto px-6 py-12">
@@ -138,21 +107,14 @@ export default function Topic() {
           </div>
         </div>
 
-        {/* Staggered card reveal — each card fades in with 50ms offset after previous */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {topic.subCards.map((card, idx) => (
-            <motion.div
-              key={card.title}
-              initial={{ opacity: 0, y: 12 }}
-              animate={cardsVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-              transition={{ duration: 0.3, ease: 'easeOut', delay: idx * 0.05 }}
-            >
-              <SubTopicCard 
-                card={card} 
-                delay={0}
-                onClick={() => handleWishClick(card)} 
-              />
-            </motion.div>
+            <SubTopicCard 
+              key={card.title} 
+              card={card} 
+              delay={0.05 * idx} 
+              onClick={() => handleWishClick(card)} 
+            />
           ))}
         </div>
       </div>

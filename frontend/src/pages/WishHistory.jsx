@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import axios from 'axios'
 import PageWrapper from '../components/PageWrapper'
-import VaultSkeleton from '../components/skeletons/VaultSkeleton'
 import { 
   History, 
   Share2, 
@@ -29,18 +28,14 @@ const WishHistory = () => {
   const [opps, setOpps] = useState([])
   const [campaigns, setCampaigns] = useState([])
   const [loading, setLoading] = useState(true)
-  const [showSkeleton, setShowSkeleton] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const fetchStartTime = useRef<number>(0)
 
   useEffect(() => {
     fetchHistory()
   }, [])
 
   const fetchHistory = async () => {
-    fetchStartTime.current = Date.now()
     setLoading(true)
-    setShowSkeleton(true)
     try {
       const results = await Promise.allSettled([
         axios.get(`${API_BASE}/post`),
@@ -56,13 +51,7 @@ const WishHistory = () => {
     } catch (err) {
       console.error("Failed to fetch history", err)
     }
-    // 300ms minimum display threshold — if data returns faster still show skeleton briefly
-    const elapsed = Date.now() - fetchStartTime.current
-    const remaining = Math.max(0, 300 - elapsed)
-    setTimeout(() => {
-      setLoading(false)
-      setShowSkeleton(false)
-    }, remaining)
+    setLoading(false)
   }
 
   const filteredPosts = posts.filter(p => 
@@ -85,22 +74,9 @@ const WishHistory = () => {
     (c.status || '').toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  // 3-second max skeleton timeout guard
-  useEffect(() => {
-    const maxTimer = setTimeout(() => setShowSkeleton(false), 3000)
-    return () => clearTimeout(maxTimer)
-  }, [])
-
   return (
     <PageWrapper>
-      {/* VaultSkeleton fades out, real content fades in */}
-      {showSkeleton ? (
-        <div style={{ opacity: 1, transition: 'opacity 300ms ease-out' }}>
-          <VaultSkeleton />
-        </div>
-      ) : (
-        <div style={{ opacity: 1, transition: 'opacity 300ms ease-out' }}>
-        <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="max-w-6xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
@@ -179,8 +155,15 @@ const WishHistory = () => {
           </button>
         </div>
 
-        {/* Content Area — no more basic pulse, VaultSkeleton shown above while loading */}
-        <AnimatePresence mode="wait">
+        {/* Content Area */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1,2,3].map(i => (
+              <div key={i} className="h-48 rounded-3xl bg-white/5 animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
               initial={{ opacity: 0, y: 20 }}
@@ -223,9 +206,8 @@ const WishHistory = () => {
               )}
             </motion.div>
           </AnimatePresence>
-        </div>
-        </div>
-      )}
+        )}
+      </div>
     </PageWrapper>
   )
 }

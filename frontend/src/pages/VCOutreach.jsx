@@ -4,7 +4,6 @@ import { Sparkles, MessageSquare, CheckCircle, AlertCircle, ArrowLeft, TrendingU
 import { useNavigate } from 'react-router-dom'
 import PageWrapper from '../components/PageWrapper'
 import DiscoverMoreWishes from '../components/DiscoverMoreWishes'
-import WishGrantedSkeleton from '../components/skeletons/WishGrantedSkeleton'
 import axios from 'axios'
 import { API_BASE } from '../config'
 
@@ -29,7 +28,6 @@ export default function VCOutreach() {
   const [results, setResults] = useState([])
   const [errorMsg, setErrorMsg] = useState('')
   const [selectedVc, setSelectedVc] = useState(null)
-  const [grantedLoading, setGrantedLoading] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -91,15 +89,6 @@ export default function VCOutreach() {
 
     return () => clearInterval(interval)
   }, [wishId, executionState])
-
-  // Show WishGrantedSkeleton briefly (400ms) when results first appear
-  useEffect(() => {
-    if (executionState === 'completed') {
-      setGrantedLoading(true)
-      const t = setTimeout(() => setGrantedLoading(false), 400)
-      return () => clearTimeout(t)
-    }
-  }, [executionState])
 
   return (
     <PageWrapper>
@@ -257,11 +246,6 @@ export default function VCOutreach() {
         )}
 
         {executionState === 'completed' && (
-          grantedLoading ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <WishGrantedSkeleton />
-            </motion.div>
-          ) : (
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-8">
             <div className="card-glow bg-green-500/5 border border-green-500/20 rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-6">
               <div className="flex items-center gap-4">
@@ -355,7 +339,6 @@ export default function VCOutreach() {
 
             <DiscoverMoreWishes currentWish="vc-outreach" />
           </motion.div>
-          )
         )}
 
         {executionState === 'error' && (

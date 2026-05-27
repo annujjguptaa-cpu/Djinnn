@@ -27,7 +27,7 @@ export default function ScholarshipApplication() {
   const [count, setCount] = useState(0)
   const [total, setTotal] = useState(0)
   const [results, setResults] = useState([])
-  const [grantedLoading, setGrantedLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
   const [selectedSchol, setSelectedSchol] = useState(null)
   const [grantedLoading, setGrantedLoading] = useState(false)
 
@@ -90,7 +90,10 @@ export default function ScholarshipApplication() {
       }
     }, 1500)
 
-    // Show WishGrantedSkeleton briefly (400ms) when results first appear
+    return () => clearInterval(interval)
+  }, [wishId, executionState])
+
+  // Show WishGrantedSkeleton briefly (400ms) when results first appear
   useEffect(() => {
     if (executionState === 'completed') {
       setGrantedLoading(true)
@@ -369,6 +372,7 @@ export default function ScholarshipApplication() {
 
             <DiscoverMoreWishes currentWish="scholarships" />
           </motion.div>
+          )
         )}
 
         {executionState === 'error' && (

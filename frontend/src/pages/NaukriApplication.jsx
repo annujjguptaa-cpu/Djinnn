@@ -98,7 +98,10 @@ export default function NaukriApplication() {
       }
     }, 1500)
 
-    // Show WishGrantedSkeleton briefly (400ms) when results first appear
+    return () => clearInterval(interval)
+  }, [wishId, executionState])
+
+  // Show WishGrantedSkeleton briefly (400ms) when results first appear
   useEffect(() => {
     if (executionState === 'completed') {
       setGrantedLoading(true)
@@ -106,9 +109,6 @@ export default function NaukriApplication() {
       return () => clearTimeout(t)
     }
   }, [executionState])
-
-  return () => clearInterval(interval)
-  }, [wishId, executionState])
 
   return (
     <PageWrapper>
@@ -356,6 +356,7 @@ export default function NaukriApplication() {
 
             <DiscoverMoreWishes currentWish="naukri-jobs" />
           </motion.div>
+          )
         )}
 
         {executionState === 'error' && (

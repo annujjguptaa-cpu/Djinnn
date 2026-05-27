@@ -7,6 +7,7 @@ import SocialPreview from '../components/SocialPreview'
 import { Bird, Sparkles, Upload, X } from 'lucide-react'
 import { API_BASE } from '../config'
 import logo from '../assets/logo.jpg'
+import DiscoverMoreWishes from '../components/DiscoverMoreWishes'
 
 // ─── Confetti ───────────────────────────────────────────────────────────────
 function Confetti() {
@@ -315,6 +316,10 @@ function WishGranted({ postUrl, platform, wishData }) {
           >
             ✨ Make Another Wish
           </motion.a>
+        </div>
+        
+        <div className="mt-8">
+          <DiscoverMoreWishes currentWish={isConnect ? 'linkedin-connect' : 'linkedin-post'} />
         </div>
       </div>
     </>

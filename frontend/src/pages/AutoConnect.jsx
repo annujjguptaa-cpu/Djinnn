@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Users, MapPin, MessageSquare, Sparkles, Link2, Copy, Check, ChevronRight } from 'lucide-react'
 import PageWrapper from '../components/PageWrapper'
 import axios from 'axios'
-import DiscoverMoreWishes from '../components/DiscoverMoreWishes'
+
 
 import { API_BASE } from '../config'
 
@@ -258,7 +258,7 @@ export default function AutoConnect() {
             <PreviewCard role={role} location={location} message={message} />
           </motion.div>
         </div>
-        {wishLink && <DiscoverMoreWishes currentWish="linkedin-connect" />}
+
       </div>
     </PageWrapper>
   )

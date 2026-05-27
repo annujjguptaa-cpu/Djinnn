@@ -123,6 +123,17 @@
       "platform": "linkedin",
       "status": "created",
       "created_at": "2026-05-19T14:32:05.821518"
+    },
+    "post_9b3879e505": {
+      "type": "post",
+      "caption": "Currently testing the working of the project'\n",
+      "has_images": true,
+      "image_paths": [
+        "254acd1c_Gemini_Generated_Image_3t7zei3t7zei3t7z.png"
+      ],
+      "platform": "linkedin",
+      "status": "created",
+      "created_at": "2026-05-27T19:15:46.178847"
     }
   },
   "connect": {
@@ -131,6 +142,15 @@
       "role": "Data Analytics",
       "location": "Bangalore, Gurugram",
       "message": "Hi [Name],\n\nI'm a passionate developer exploring exciting opportunities in the tech space. Your work at [Company] really inspired me and I'd love to connect and learn from your journey.\n\nLooking forward to connecting!"
+    },
+    "connect_47fb8b55b6": {
+      "type": "connect",
+      "role": "Software Engineer",
+      "location": "Gurugram",
+      "message": "AI content generation unavailable. Please check your API keys.",
+      "status": "executed",
+      "created_at": "2026-05-27T19:24:52.299758",
+      "executed_at": "2026-05-27T19:25:21.896357"
     }
   }
 }

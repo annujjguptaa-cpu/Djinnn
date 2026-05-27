@@ -19,8 +19,9 @@ import VCOutreach from './pages/VCOutreach'
 import ColdEmailCampaign from './pages/ColdEmailCampaign'
 import SalesFollowUp from './pages/SalesFollowUp'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import SplashScreen from './components/SplashScreen'
+import SkeletonLoader from './components/SkeletonLoader'
 
 function App() {
   const location = useLocation()
@@ -29,10 +30,37 @@ function App() {
   // Restore splash screen
   const [showSplash, setShowSplash] = useState(!isWishPage)
 
+  // Skeleton loading states
+  const [loading, setLoading] = useState(true)
+  const [isExiting, setIsExiting] = useState(false)
+
+  useEffect(() => {
+    if (showSplash) return
+
+    // Minimum display time of 2000ms (between 1.5s and 2.5s)
+    const timer = setTimeout(() => {
+      setIsExiting(true)
+    }, 2000)
+
+    return () => clearTimeout(timer)
+  }, [showSplash])
+
   return (
     <>
-      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
-      <div className="min-h-screen bg-djinn-bg bg-grid font-inter">
+      {loading && !showSplash && (
+        <SkeletonLoader 
+          isExiting={isExiting} 
+          onTransitionEnd={() => setLoading(false)} 
+        />
+      )}
+      <div 
+        className="min-h-screen bg-djinn-bg bg-grid font-inter"
+        style={{
+          opacity: isExiting || !loading || showSplash ? 1 : 0,
+          transition: 'opacity 400ms ease-out',
+        }}
+      >
+        {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
         {!isWishPage && !showSplash && <Navbar />}
         <AnimatePresence mode="wait">
           {!showSplash && (

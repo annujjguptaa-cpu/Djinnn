@@ -4,6 +4,7 @@ import { Sparkles, Upload, FileText, CheckCircle, AlertCircle, ArrowRight, Arrow
 import { useNavigate } from 'react-router-dom'
 import PageWrapper from '../components/PageWrapper'
 import DiscoverMoreWishes from '../components/DiscoverMoreWishes'
+import WishGrantedSkeleton from '../components/skeletons/WishGrantedSkeleton'
 import axios from 'axios'
 import { API_BASE } from '../config'
 
@@ -30,6 +31,7 @@ export default function JobApplication() {
   const [results, setResults] = useState([])
   const [errorMsg, setErrorMsg] = useState('')
   const [selectedApp, setSelectedApp] = useState(null)
+  const [grantedLoading, setGrantedLoading] = useState(false)
 
   // Handle File change
   const handleFileChange = (e) => {
@@ -104,6 +106,15 @@ export default function JobApplication() {
 
     return () => clearInterval(interval)
   }, [wishId, executionState])
+
+  // Show WishGrantedSkeleton briefly (400ms) when results first appear
+  useEffect(() => {
+    if (executionState === 'completed') {
+      setGrantedLoading(true)
+      const t = setTimeout(() => setGrantedLoading(false), 400)
+      return () => clearTimeout(t)
+    }
+  }, [executionState])
 
   return (
     <PageWrapper>
@@ -270,6 +281,11 @@ export default function JobApplication() {
         )}
 
         {executionState === 'completed' && (
+          grantedLoading ? (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <WishGrantedSkeleton />
+            </motion.div>
+          ) : (
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-8">
             <div className="card-glow bg-green-500/5 border border-green-500/20 rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-6">
               <div className="flex items-center gap-4">
@@ -366,6 +382,7 @@ export default function JobApplication() {
 
             <DiscoverMoreWishes currentWish="linkedin-jobs" />
           </motion.div>
+          )
         )}
 
         {executionState === 'error' && (

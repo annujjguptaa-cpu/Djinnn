@@ -55,6 +55,13 @@ To drive platform-wide discovery, we have introduced the reusable **Discover Mor
 - Clicking **Request Access** opens a beautiful, animated modal where users enter their name, email, organization, and use case details.
 - Access requests are saved securely in the backend Database and trigger real-time SMTP Email Alerts directly to the administrator.
 
+### ⚡ High-Performance UI & Skeleton Loading System
+To provide a premium, non-blocking user experience, a comprehensive unified skeleton loading system has been implemented across the platform:
+- **Shared Primitive Library**: Reusable shimmering SVG primitives (`SkeletonRect`, `SkeletonCircle`, `SkeletonText`, `SkeletonCard`, etc.) built with custom CSS keyframes to match the dark navy aesthetic (`#020817` background, 1.5s linear loop).
+- **Staggered Grid Reveals**: Topic inner pages utilize Framer Motion to stagger card entrances (50ms offsets) for a cinematic, premium reveal.
+- **Minimum Display Thresholds**: Enforced minimum threshold times (e.g., 300ms, 800ms) for data fetching to prevent jarring UI pop-in flashes on fast networks.
+- **Safety Fallbacks**: Maximum timeout guards (e.g., 3 seconds) ensure users are never permanently blocked by network latency.
+
 ---
 
 ## 🛠️ Tech Stack

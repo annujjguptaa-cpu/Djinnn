@@ -1,0 +1,215 @@
+.skeleton-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: #020817;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  opacity: 1;
+  transition: opacity 400ms ease-out;
+  pointer-events: none;
+}
+
+.skeleton-overlay.fade-out {
+  opacity: 0;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shape {
+  background: linear-gradient(90deg, #0f172a 25%, #1e293b 50%, #0f172a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 8px;
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+}
+
+/* Navbar Skeleton */
+.skeleton-navbar {
+  width: 100%;
+  height: 64px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.skeleton-nav-left {
+  display: flex;
+  align-items: center;
+}
+
+.skeleton-logo-placeholder {
+  width: 32px;
+  height: 32px;
+}
+
+.skeleton-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.skeleton-nav-tab {
+  width: 80px;
+  height: 32px;
+}
+
+/* Hero Section Skeleton */
+.skeleton-hero {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px 24px 60px 24px;
+  box-sizing: border-box;
+}
+
+/* Brand Logo (15% opacity) */
+.skeleton-brand-logo {
+  opacity: 0.15;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  user-select: none;
+}
+
+.skeleton-brand-image {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(124, 58, 237, 0.5);
+}
+
+.skeleton-brand-text {
+  font-size: 24px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.05em;
+}
+
+/* Genie Lamp Placeholder */
+.skeleton-lamp-placeholder {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 24px;
+}
+
+/* Badge Placeholder */
+.skeleton-badge-placeholder {
+  width: 180px;
+  height: 28px;
+  margin-bottom: 24px;
+}
+
+/* Heading Placeholder */
+.skeleton-heading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.skeleton-heading-line1 {
+  width: 320px;
+  height: 48px;
+}
+
+.skeleton-heading-line2 {
+  width: 280px;
+  height: 48px;
+}
+
+/* Subtitle Placeholder */
+.skeleton-subtitle-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.skeleton-subtitle-line1 {
+  width: 380px;
+  height: 20px;
+}
+
+.skeleton-subtitle-line2 {
+  width: 340px;
+  height: 20px;
+}
+
+/* Stats Placeholder */
+.skeleton-stats-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  margin-bottom: 40px;
+}
+
+.skeleton-stat-block {
+  width: 80px;
+  height: 50px;
+}
+
+/* Button Placeholders */
+.skeleton-buttons-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.skeleton-button-placeholder {
+  width: 160px;
+  height: 48px;
+}
+
+/* Progress Line (2px) at bottom */
+.skeleton-progress-bar-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: transparent;
+  overflow: hidden;
+}
+
+.skeleton-progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background-color: #7C3AED;
+  animation: progressFill 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes progressFill {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}

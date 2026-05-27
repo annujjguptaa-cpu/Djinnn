@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import PageWrapper from '../components/PageWrapper'
 import { Sparkles, Share2, Users } from 'lucide-react'
 import logo from '../assets/logo.jpg'
+import FloatingLanterns from '../components/FloatingLanterns'
 
 const DjinnLamp = () => (
   <div className="relative flex items-center justify-center w-64 h-64 mx-auto mb-12">
@@ -81,74 +82,74 @@ export default function Home() {
   const navigate = useNavigate()
 
   return (
-    <PageWrapper>
-      <div className="max-w-6xl mx-auto px-6 py-16">
+    <>
+      <FloatingLanterns />
+      <PageWrapper className="relative z-10">
+        <div className="max-w-6xl mx-auto px-6 py-16 relative z-10">
 
-        {/* Hero Section */}
-        <div className="text-center mb-20">
-          <DjinnLamp />
+          {/* Hero Section */}
+          <div className="text-center mb-20">
+            <DjinnLamp />
 
+              <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-djinn-purple/10 border border-djinn-purple/20 text-djinn-purple-light text-sm font-medium mb-6"
+            >
+              <Sparkles size={14} />
+              Multi-Platform AI Action Agent
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="text-6xl md:text-7xl font-black mb-4 leading-tight"
+            >
+              <span className="text-djinn-text">You wish it.</span>
+              <br />
+              <span className="text-gradient">Djinn does it.</span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="text-djinn-subtext text-xl max-w-2xl mx-auto leading-relaxed"
+            >
+              Your multi-platform AI Action Agent. Automate social content, research and outreach to investors, re-engage sales leads, search scholarships, and auto-apply to jobs—all executing autonomously in the background.
+            </motion.p>
+
+            {/* Stats row */}
             <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-djinn-purple/10 border border-djinn-purple/20 text-djinn-purple-light text-sm font-medium mb-6"
-          >
-            <Sparkles size={14} />
-            Multi-Platform AI Action Agent
-          </motion.div>
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="flex items-center justify-center gap-10 mt-10"
+            >
+              {[['10x', 'Execution Speed'], ['24/7', 'Autonomous Action'], ['100%', 'AI-Powered']].map(([num, label]) => (
+                <div key={label} className="text-center">
+                  <div className="text-2xl font-bold text-gradient">{num}</div>
+                  <div className="text-xs text-djinn-subtext mt-0.5">{label}</div>
+                </div>
+              ))}
+            </motion.div>
+          </div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-6xl md:text-7xl font-black mb-4 leading-tight"
-          >
-            <span className="text-djinn-text">You wish it.</span>
-            <br />
-            <span className="text-gradient">Djinn does it.</span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-djinn-subtext text-xl max-w-2xl mx-auto leading-relaxed"
-          >
-            Your multi-platform AI Action Agent. Automate social content, research and outreach to investors, re-engage sales leads, search scholarships, and auto-apply to jobs—all executing autonomously in the background.
-          </motion.p>
-
-          {/* Stats row */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="flex items-center justify-center gap-10 mt-10"
-          >
-            {[['10x', 'Execution Speed'], ['24/7', 'Autonomous Action'], ['100%', 'AI-Powered']].map(([num, label]) => (
-              <div key={label} className="text-center">
-                <div className="text-2xl font-bold text-gradient">{num}</div>
-                <div className="text-xs text-djinn-subtext mt-0.5">{label}</div>
-              </div>
+          {/* Feature Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {topicsData.map((topic, i) => (
+              <TopicCard
+                key={topic.id}
+                topic={topic}
+                delay={0.1 * i}
+                onClick={() => navigate(`/topic/${topic.id}`)}
+              />
             ))}
-          </motion.div>
+          </div>
         </div>
-
-        {/* Feature Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {topicsData.map((topic, i) => (
-            <TopicCard
-              key={topic.id}
-              topic={topic}
-              delay={0.1 * i}
-              onClick={() => navigate(`/topic/${topic.id}`)}
-            />
-          ))}
-        </div>
-
-        {/* Bottom glow decoration */}
-        <div className="pointer-events-none fixed bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-djinn-purple opacity-5 blur-[100px] rounded-full" />
-      </div>
-    </PageWrapper>
+      </PageWrapper>
+    </>
   )
 }

@@ -25,7 +25,7 @@ else:
     ACTIVE_PROVIDER = "MOCK"
 
 print(f"=========================================")
-print(f"🤖 ACTIVE AI PROVIDER DETECTED: {ACTIVE_PROVIDER}")
+print(f"[AI] ACTIVE AI PROVIDER DETECTED: {ACTIVE_PROVIDER}")
 print(f"=========================================")
 
 def parse_json_safely(text: str) -> dict:

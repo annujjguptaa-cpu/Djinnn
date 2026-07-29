@@ -41,6 +41,7 @@ backend/uploads/*
 *.gif
 *.webp
 !frontend/src/assets/*
+!frontend/public/*
 
 # Data & Cache
 *.db

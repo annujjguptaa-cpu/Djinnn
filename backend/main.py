@@ -67,6 +67,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         frontend_url,
+        "https://djinn-rho.vercel.app",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:5174",

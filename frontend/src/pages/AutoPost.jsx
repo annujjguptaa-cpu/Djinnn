@@ -113,7 +113,7 @@ export default function AutoPost() {
       setWishLink(`${window.location.origin}/wish/${res.data.wish_id}`)
     } catch (err) {
       console.error('Summon failed:', err)
-      setSummonError('Could not connect to Djinn backend. Make sure the server is running on port 8000.')
+      setSummonError(err.response?.data?.detail || err.message || 'Could not connect to Djinn backend. Please check server status.')
     } finally {
       setIsCreating(false)
     }

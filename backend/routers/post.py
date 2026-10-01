@@ -242,9 +242,10 @@ async def execute_linkedin_post(client: httpx.AsyncClient, wish: dict, access_to
                 # B. Upload Binary (No Auth header for pre-signed URLs)
                 with open(filepath, "rb") as f:
                     upload_res = await client.put(upload_url, content=f.read())
-                    if upload_res.status_code != 201:
-                         print(f"Binary Upload failed: {upload_res.status_code} - {upload_res.text}")
-                asset_urns.append(asset_urn)
+                    if upload_res.status_code in (200, 201):
+                        asset_urns.append(asset_urn)
+                    else:
+                        print(f"Binary Upload failed: {upload_res.status_code} - {upload_res.text}")
 
     # 3. Try Modern Posts API (Primary for 2024+ apps)
     posts_payload = {
@@ -351,8 +352,8 @@ async def execute_linkedin_post(client: httpx.AsyncClient, wish: dict, access_to
 
     print(f"Final Resolved LinkedIn URN: {post_urn}")
     
-    # Modern direct post URL
-    post_url = f"https://www.linkedin.com/posts/{post_urn}" if post_urn else None
+    # Modern direct post URL (works for urn:li:share, urn:li:ugcPost, urn:li:post)
+    post_url = f"https://www.linkedin.com/feed/update/{post_urn}/" if post_urn else None
 
     return {
         "status": "success", 

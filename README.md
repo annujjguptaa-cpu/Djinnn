@@ -12,15 +12,15 @@
 ## 🎥 Demo Video & Live Deployment
 
 * **Live Frontend Application:** [https://djinn-rho.vercel.app/](https://djinn-rho.vercel.app/)
-* **Backend Health Check Endpoint:** `https://<your-deployed-backend-domain>/api/health`
-* **Demo Video:** [demo video link placeholder — ask for YouTube link]
+* **Backend Health Check Endpoint:** [https://djinn-backend.onrender.com/api/health](https://djinn-backend.onrender.com/api/health)
+* **Demo Video:** [https://youtu.be/DoRUjv9CMS0](https://youtu.be/DoRUjv9CMS0)
 
 ---
 
 ## 📌 Problem Statement & Overview
 
 * **Hackathon Context:** Smart India Hackathon (SIH) / Open Innovation
-* **Problem Statement ID:** [ask for real PS ID]
+* **Problem Statement ID:** SIH26202
 * **Title:** Autonomous Multi-Platform AI Action Agent for Cross-Channel Workflow Execution
 
 ### Problem Statement
@@ -396,7 +396,7 @@ Djinn/
 
 To verify the live prototype during demonstration:
 
-1. **System Health Verification:** Navigate to `https://<your-deployed-backend-domain>/api/health` to confirm database connectivity and AI engine status.
+1. **System Health Verification:** Navigate to [https://djinn-backend.onrender.com/api/health](https://djinn-backend.onrender.com/api/health) to confirm database connectivity and AI engine status.
 2. **Social Post Creation Test:**
    - Open [https://djinn-rho.vercel.app/auto-post](https://djinn-rho.vercel.app/auto-post).
    - Enter context (e.g. *"Launch of our AI Action Agent"*), upload an image, and watch the AI caption stream in real time.

@@ -110,4 +110,33 @@ async def root():
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+@app.get("/api/health")
+async def detailed_health():
+    import httpx
+    from settings import settings
+
+    # 1. Supabase status check
+    supabase_ok = bool(settings.SUPABASE_URL and settings.SUPABASE_KEY)
+    
+    # 2. Claude API status check
+    claude_configured = bool(settings.ANTHROPIC_API_KEY and not settings.ANTHROPIC_API_KEY.startswith("your_"))
+
+    # 3. Ollama local check
+    ollama_ok = False
+    try:
+        async with httpx.AsyncClient(timeout=1.5) as client:
+            res = await client.get("http://localhost:11434/api/tags")
+            ollama_ok = (res.status_code == 200)
+    except Exception:
+        ollama_ok = False
+
+    return {
+        "status": "healthy",
+        "supabase_connected": supabase_ok,
+        "claude_api_configured": claude_configured,
+        "ollama_reachable": ollama_ok,
+        "environment": settings.APP_ENV,
+        "frontend_url": settings.FRONTEND_URL
+    }
  

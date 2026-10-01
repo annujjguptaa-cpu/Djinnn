@@ -35,6 +35,27 @@ class AIEngine:
             except Exception as e:
                 print(f"Gemini failed: {e}")
 
+        # 3. Try Ollama local (OpenAI-compatible fallback at http://localhost:11434/v1)
+        try:
+            import httpx
+            with httpx.Client(timeout=4.0) as client:
+                res = client.post(
+                    "http://localhost:11434/v1/chat/completions",
+                    json={
+                        "model": "qwen2.5",
+                        "messages": [{"role": "user", "content": prompt}],
+                        "temperature": 0.7
+                    }
+                )
+                if res.status_code == 200:
+                    data = res.json()
+                    content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    if content:
+                        print("Generated content via Ollama local fallback.")
+                        return content
+        except Exception as e:
+            print(f"Ollama local fallback unavailable: {e}")
+
         # 3. Fallback to smart local mock data for demo purposes
         print("AI keys missing or invalid. Falling back to local mock generator.")
         prompt_lower = prompt.lower()

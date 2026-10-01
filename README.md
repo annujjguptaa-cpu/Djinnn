@@ -1,6 +1,6 @@
 # 🪔 Djinn — Omni-Platform AI Action Agent
 
-> **You wish it. Djinn does it.** — Autonomous social media execution, AI ghostwriting, network expansion, and multi-channel workflow automation.
+> **Djinn! - Every AI agent works for the person who has it. Djinn is the first you can share**
 
 [![Platform](https://img.shields.io/badge/Manifest-Djinn%20v1.3-8b5cf6?style=for-the-badge&logo=react)](https://djinn-rho.vercel.app/)
 [![Execution Status](https://img.shields.io/badge/Status-Live%20Prototype-34d399?style=for-the-badge)](https://djinn-rho.vercel.app/)
@@ -409,6 +409,12 @@ To verify the live prototype during demonstration:
    - Open [https://djinn-rho.vercel.app/auto-connect](https://djinn-rho.vercel.app/auto-connect).
    - Specify role (*Founder*) and location (*San Francisco*).
    - Click **Summon**, open the wish link, and test the **Copy Personalised Note** and **Find Peers on LinkedIn** actions.
+
+---
+
+## 📁 Related Project Documents
+
+* **Complete Platform Wishes Directory:** [docs/ALL_WISHES.md](docs/ALL_WISHES.md) — Comprehensive specification of all 15 Wish Topics and active/upcoming automation workflows.
 
 ---
 

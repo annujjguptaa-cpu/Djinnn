@@ -202,10 +202,21 @@ function WishGranted({ postUrl, platform, wishData }) {
   const isX = platform === 'x'
   const isConnect = wishData?.type === 'connect'
   
-  // Generate LinkedIn Search URL for Connect wishes
+  const [copiedMsg, setCopiedMsg] = useState(false)
+  
+  // Generate LinkedIn Search URL for Connect wishes (combining role and location into keywords)
+  const queryStr = [wishData?.role, wishData?.location].filter(Boolean).join(' ')
   const searchUrl = isConnect 
-    ? `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(wishData.role)}&location=${encodeURIComponent(wishData.location)}`
+    ? `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(queryStr)}`
     : postUrl
+
+  const copyMessage = () => {
+    if (wishData?.message) {
+      navigator.clipboard.writeText(wishData.message)
+      setCopiedMsg(true)
+      setTimeout(() => setCopiedMsg(false), 2500)
+    }
+  }
 
   return (
     <>
@@ -277,6 +288,20 @@ function WishGranted({ postUrl, platform, wishData }) {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-4">
+          {isConnect && wishData?.message && (
+            <motion.button
+              onClick={copyMessage}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="px-8 py-4 rounded-2xl border border-djinn-purple/40 bg-djinn-purple/20 text-djinn-purple-light font-bold text-base inline-flex items-center gap-2 hover:bg-djinn-purple/30 transition-all"
+            >
+              📋 {copiedMsg ? 'Copied Message!' : 'Copy Personalised Note'}
+            </motion.button>
+          )}
+
           <motion.a
             href={searchUrl || "#"}
             target="_blank"

@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, Image, Sparkles, Link2, Copy, Check, X, ThumbsUp, MessageSquare, Repeat2, Send, ArrowLeft } from 'lucide-react'
+import { Upload, Image, Sparkles, Link2, Copy, Check, X, ThumbsUp, MessageSquare, Repeat2, Send, ArrowLeft, ExternalLink } from 'lucide-react'
 import PageWrapper from '../components/PageWrapper'
 import SocialPreview from '../components/SocialPreview'
 import axios from 'axios'
@@ -434,12 +434,21 @@ export default function AutoPost() {
                     <Link2 size={14} className="text-djinn-purple-light" />
                     <span className="text-sm font-medium text-djinn-purple-light">Post Wish ready!</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 mb-2">
                     <input readOnly value={wishLink} className="input-djinn flex-1 rounded-xl px-3 py-2 text-xs" />
-                    <motion.button whileTap={{ scale: 0.9 }} onClick={copyLink} className="p-2 rounded-xl bg-djinn-purple/20 border border-djinn-purple/30 text-djinn-purple-light hover:bg-djinn-purple/30">
+                    <motion.button whileTap={{ scale: 0.9 }} onClick={copyLink} className="p-2 rounded-xl bg-djinn-purple/20 border border-djinn-purple/30 text-djinn-purple-light hover:bg-djinn-purple/30" title="Copy Link">
                       {isCopied ? <Check size={16} /> : <Copy size={16} />}
                     </motion.button>
                   </div>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate(`/wish/${wishLink.split('/wish/')[1]}`)}
+                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-djinn-purple to-djinn-purple-dark text-white font-bold text-xs flex items-center justify-center gap-2 shadow-purple-glow hover:brightness-110 transition-all mt-1"
+                  >
+                    <span>Go to Wish Page & Grant Wish</span>
+                    <ExternalLink size={14} />
+                  </motion.button>
                 </motion.div>
               )}
             </AnimatePresence>
